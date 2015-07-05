@@ -1,10 +1,15 @@
 #![feature(asm)]
 
-use std::fmt;
+use std::{fmt, slice, str};
+use std::ops::Deref;
 
 enum RequestType {
-    BasicInformation = 0x0,
-    VersionInformation = 0x1,
+    BasicInformation            = 0x00000000,
+    VersionInformation          = 0x00000001,
+    ExtendedFunctionInformation = 0x80000000,
+    BrandString1                = 0x80000002,
+    BrandString2                = 0x80000003,
+    BrandString3                = 0x80000004,
 }
 
 fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
@@ -206,6 +211,65 @@ pub fn feature_information() -> FeatureInformation {
     FeatureInformation { ecx: c, edx: d }
 }
 
+fn as_bytes(v: &u32) -> &[u8] {
+    let start = v as *const u32 as *const u8;
+    // TODO: use u32::BYTES
+    unsafe { slice::from_raw_parts(start, 4) }
+}
+
+// 3 calls of 4 registers of 4 bytes
+const BRAND_STRING_LENGTH: usize = 3 * 4 * 4;
+
+pub struct BrandString {
+    bytes: [u8; BRAND_STRING_LENGTH],
+}
+
+impl BrandString {
+    fn new() -> BrandString {
+        BrandString { bytes: [0; BRAND_STRING_LENGTH] }
+    }
+}
+
+impl Deref for BrandString {
+    type Target = str;
+
+    fn deref(&self) -> &str {
+        let nul_terminator = self.bytes.iter().position(|&b| b == 0).unwrap_or(0);
+        let usable_bytes = &self.bytes[..nul_terminator];
+        unsafe { str::from_utf8_unchecked(usable_bytes) }
+    }
+}
+
+impl fmt::Display for BrandString {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        (self as &str).fmt(f)
+    }
+}
+
+pub fn brand_string() -> BrandString {
+    // Should check supported (EAX Return Value of 0x80000000 ≥ 0x80000004)
+
+    fn append_bytes(a: RequestType, bytes: &mut [u8]) {
+        let (a, b, c, d) = cpuid(a);
+
+        let result_bytes =
+            as_bytes(&a).iter()
+            .chain(as_bytes(&b).iter())
+            .chain(as_bytes(&c).iter())
+            .chain(as_bytes(&d).iter());
+
+        for (output, input) in bytes.iter_mut().zip(result_bytes) {
+            *output = *input
+        }
+    }
+
+    let mut brand_string = BrandString::new();
+    append_bytes(RequestType::BrandString1, &mut brand_string.bytes[0..]);
+    append_bytes(RequestType::BrandString2, &mut brand_string.bytes[16..]);
+    append_bytes(RequestType::BrandString3, &mut brand_string.bytes[32..]);
+    brand_string
+}
+
 #[test]
 fn basic_genuine_intel() {
     // let (a,b,c,d) = cpuid(RequestType::BasicInformation);
@@ -213,4 +277,9 @@ fn basic_genuine_intel() {
     // assert_eq!(b"Genu", b);
     // assert_eq!(b"ntel", c);
     // assert_eq!(b"ineI", d);
+}
+
+#[test]
+fn brand_string_contains_intel() {
+    assert!(brand_string().contains("Intel(R)"))
 }

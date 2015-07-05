@@ -1,5 +1,6 @@
 extern crate cpuid;
 
 fn main() {
-    println!("{}", cpuid::feature_information())
+    println!("{}", cpuid::brand_string());
+    println!("{}", cpuid::feature_information());
 }
