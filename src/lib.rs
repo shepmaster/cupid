@@ -220,6 +220,7 @@ fn as_bytes(v: &u32) -> &[u8] {
 // 3 calls of 4 registers of 4 bytes
 const BRAND_STRING_LENGTH: usize = 3 * 4 * 4;
 
+/// The brand of the processor.
 pub struct BrandString {
     bytes: [u8; BRAND_STRING_LENGTH],
 }
