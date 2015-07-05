@@ -1,0 +1,4 @@
+[package]
+name = "cpuid"
+version = "0.1.0"
+authors = ["Jake Goulding <jake.goulding@gmail.com>"]
