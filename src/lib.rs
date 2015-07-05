@@ -272,11 +272,11 @@ pub fn brand_string() -> BrandString {
 
 #[test]
 fn basic_genuine_intel() {
-    // let (a,b,c,d) = cpuid(RequestType::BasicInformation);
+    let (_, b, c, d) = cpuid(RequestType::BasicInformation);
 
-    // assert_eq!(b"Genu", b);
-    // assert_eq!(b"ntel", c);
-    // assert_eq!(b"ineI", d);
+    assert_eq!(b"Genu", as_bytes(&b));
+    assert_eq!(b"ntel", as_bytes(&c));
+    assert_eq!(b"ineI", as_bytes(&d));
 }
 
 #[test]
