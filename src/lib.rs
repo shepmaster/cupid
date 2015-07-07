@@ -61,7 +61,7 @@ macro_rules! bit {
 /// Each method corresponds to a single capability. Method names match
 /// the feature mnemonic listed in the Intel Instruction Set
 /// Reference.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 pub struct FeatureInformation {
     ecx: u32,
     edx: u32,
@@ -141,7 +141,7 @@ macro_rules! dump {
     }
 }
 
-impl fmt::Display for FeatureInformation {
+impl fmt::Debug for FeatureInformation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         dump!(self, f, sse3);
         dump!(self, f, pclmulqdq);
