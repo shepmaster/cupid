@@ -10,6 +10,7 @@ enum RequestType {
     BrandString1                = 0x80000002,
     BrandString2                = 0x80000003,
     BrandString3                = 0x80000004,
+    PhysicalAddressSize         = 0x80000008,
 }
 
 fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
@@ -269,6 +270,24 @@ pub fn brand_string() -> BrandString {
     append_bytes(RequestType::BrandString2, &mut brand_string.bytes[16..]);
     append_bytes(RequestType::BrandString3, &mut brand_string.bytes[32..]);
     brand_string
+}
+
+#[derive(Copy,Clone,Debug)]
+pub struct PhysicalAddressSize(u32);
+
+impl PhysicalAddressSize {
+    pub fn physical_address_bits(self) -> u32 {
+        bits_of(self.0, 0, 7)
+    }
+
+    pub fn linear_address_bits(self) -> u32 {
+        bits_of(self.0, 8, 15)
+    }
+}
+
+pub fn physical_address_size() -> PhysicalAddressSize {
+    let (a, _, _, _) = cpuid(RequestType::PhysicalAddressSize);
+    PhysicalAddressSize(a)
 }
 
 #[test]
