@@ -1,14 +1,14 @@
-# CPUID
+# Cupid
 
 Native Rust access to the x86 and x86_64 CPUID instruction.
 
 ## Overview
 
 ```rust
-extern crate cpuid;
+extern crate cupid;
 
 fn main() {
-    let info = cpuid::feature_information();
+    let info = cupid::feature_information();
     if (info.sse4_2()) { println!("Yay! SSE 4.2 detected!") }
     println!("{:?}", info);
 }

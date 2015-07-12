@@ -1,6 +1,6 @@
-extern crate cpuid;
+extern crate cupid;
 
 fn main() {
-    println!("{}", cpuid::brand_string().trim());
-    println!("{:?}", cpuid::feature_information());
+    println!("{}", cupid::brand_string().trim());
+    println!("{:?}", cupid::feature_information());
 }
