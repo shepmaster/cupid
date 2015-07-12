@@ -25,7 +25,7 @@ fn main() {
 
 ## Contributing
 
-1. Fork it ( https://github.com/shepmaster/cpuid-rs/fork )
+1. Fork it ( https://github.com/shepmaster/cupid/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Add a failing test.
 4. Add code to pass the test.
