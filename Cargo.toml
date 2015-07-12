@@ -2,3 +2,12 @@
 name = "cupid"
 version = "0.1.0"
 authors = ["Jake Goulding <jake.goulding@gmail.com>"]
+
+description = "Native access to the x86 and x86_64 CPUID instruction"
+readme = "README.md"
+keywords = ["assembly", "system", "x86", "x86_64", "cpuid"]
+
+homepage = "https://github.com/shepmaster/cupid"
+repository = "https://github.com/shepmaster/cupid"
+
+license = "MIT"
