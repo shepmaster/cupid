@@ -9,5 +9,6 @@ keywords = ["assembly", "system", "x86", "x86_64", "cpuid"]
 
 homepage = "https://github.com/shepmaster/cupid"
 repository = "https://github.com/shepmaster/cupid"
+documentation = "https://shepmaster.github.io/cupid/"
 
 license = "MIT"
