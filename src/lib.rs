@@ -114,7 +114,7 @@ impl FeatureInformation {
     bit!(edx,  7, mce);
     bit!(edx,  8, cx8);
     bit!(edx,  9, apic);
-    // reserved
+    // 10 - reserved
     bit!(edx, 11, sep);
     bit!(edx, 12, mtrr);
     bit!(edx, 13, pge);
@@ -124,7 +124,7 @@ impl FeatureInformation {
     bit!(edx, 17, pse_36);
     bit!(edx, 18, psn);
     bit!(edx, 19, clfsh);
-    // reserved
+    // 20 - reserved
     bit!(edx, 21, ds);
     bit!(edx, 22, acpi);
     bit!(edx, 23, mmx);
@@ -134,7 +134,7 @@ impl FeatureInformation {
     bit!(edx, 27, ss);
     bit!(edx, 28, htt);
     bit!(edx, 29, tm);
-    // reserved
+    // 30 -reserved
     bit!(edx, 31, pbe);
 }
 
