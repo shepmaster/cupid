@@ -4,13 +4,14 @@ use std::{fmt, slice, str};
 use std::ops::Deref;
 
 enum RequestType {
-    BasicInformation            = 0x00000000,
-    VersionInformation          = 0x00000001,
-    ExtendedFunctionInformation = 0x80000000,
-    BrandString1                = 0x80000002,
-    BrandString2                = 0x80000003,
-    BrandString3                = 0x80000004,
-    PhysicalAddressSize         = 0x80000008,
+    BasicInformation              = 0x00000000,
+    VersionInformation            = 0x00000001,
+    StructuredExtendedInformation = 0x00000007,
+    ExtendedFunctionInformation   = 0x80000000,
+    BrandString1                  = 0x80000002,
+    BrandString2                  = 0x80000003,
+    BrandString3                  = 0x80000004,
+    PhysicalAddressSize           = 0x80000008,
 }
 
 fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
@@ -27,7 +28,8 @@ fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
              "={ecx}"(res3),
              "={edx}"(res4)
              : // input operands
-             "{eax}"(code as u32)
+             "{eax}"(code as u32),
+             "{ecx}"(0 as u32)
              : // clobbers
              : // options
         );
@@ -270,6 +272,78 @@ pub fn brand_string() -> BrandString {
     append_bytes(RequestType::BrandString2, &mut brand_string.bytes[16..]);
     append_bytes(RequestType::BrandString3, &mut brand_string.bytes[32..]);
     brand_string
+}
+
+#[derive(Copy,Clone)]
+pub struct StructuredExtendedInformation {
+    ebx: u32,
+    ecx: u32,
+}
+
+impl StructuredExtendedInformation {
+    bit!(ebx,  0, fsgsbase);
+    bit!(ebx,  1, ia32_tsc_adjust_msr);
+    // 2 - reserved
+    bit!(ebx,  3, bmi1);
+    bit!(ebx,  4, hle);
+    bit!(ebx,  5, avx2);
+    // 6 - reserved
+    bit!(ebx,  7, smep);
+    bit!(ebx,  8, bmi2);
+    bit!(ebx,  9, enhanced_rep_movsb_stosb);
+    bit!(ebx, 10, invpcid);
+    bit!(ebx, 11, rtm);
+    bit!(ebx, 12, pqm);
+    bit!(ebx, 13, deprecates_fpu_cs_ds);
+    // 14 - reserved
+    bit!(ebx, 15, pqe);
+    // 16 - reserved
+    // 17 - reserved
+    bit!(ebx, 18, rdseed);
+    bit!(ebx, 19, adx);
+    bit!(ebx, 20, smap);
+    // 21 - reserved
+    // 22 - reserved
+    // 23 - reserved
+    // 24 - reserved
+    bit!(ebx, 25, intel_processor_trace);
+    // 26 - reserved
+    // 27 - reserved
+    // 28 - reserved
+    // 29 - reserved
+    // 30 - reserved
+    // 31 - reserved
+
+    bit!(ecx,  0, prefetchwt1);
+}
+
+impl fmt::Debug for StructuredExtendedInformation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, fsgsbase);
+        dump!(self, f, ia32_tsc_adjust_msr);
+        dump!(self, f, bmi1);
+        dump!(self, f, hle);
+        dump!(self, f, avx2);
+        dump!(self, f, smep);
+        dump!(self, f, bmi2);
+        dump!(self, f, enhanced_rep_movsb_stosb);
+        dump!(self, f, invpcid);
+        dump!(self, f, rtm);
+        dump!(self, f, pqm);
+        dump!(self, f, deprecates_fpu_cs_ds);
+        dump!(self, f, pqe);
+        dump!(self, f, rdseed);
+        dump!(self, f, adx);
+        dump!(self, f, smap);
+        dump!(self, f, intel_processor_trace);
+        dump!(self, f, prefetchwt1);
+        Ok(())
+    }
+}
+
+pub fn structured_extended_information() -> StructuredExtendedInformation {
+    let (_, b, c, _) = cpuid(RequestType::StructuredExtendedInformation);
+    StructuredExtendedInformation { ebx: b, ecx: c }
 }
 
 #[derive(Copy,Clone,Debug)]

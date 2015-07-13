@@ -5,4 +5,5 @@ fn main() {
     println!("{:?}", cupid::feature_information());
     let pas = cupid::physical_address_size();
     println!("{}, {}", pas.physical_address_bits(), pas.linear_address_bits());
+    println!("{:?}", cupid::structured_extended_information());
 }
