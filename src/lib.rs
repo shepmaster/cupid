@@ -4,14 +4,15 @@ use std::{fmt, slice, str};
 use std::ops::Deref;
 
 enum RequestType {
-    BasicInformation              = 0x00000000,
-    VersionInformation            = 0x00000001,
-    StructuredExtendedInformation = 0x00000007,
-    ExtendedFunctionInformation   = 0x80000000,
-    BrandString1                  = 0x80000002,
-    BrandString2                  = 0x80000003,
-    BrandString3                  = 0x80000004,
-    PhysicalAddressSize           = 0x80000008,
+    BasicInformation                  = 0x00000000,
+    VersionInformation                = 0x00000001,
+    ThermalPowerManagementInformation = 0x00000006,
+    StructuredExtendedInformation     = 0x00000007,
+    ExtendedFunctionInformation       = 0x80000000,
+    BrandString1                      = 0x80000002,
+    BrandString2                      = 0x80000003,
+    BrandString3                      = 0x80000004,
+    PhysicalAddressSize               = 0x80000008,
 }
 
 fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
@@ -272,6 +273,65 @@ pub fn brand_string() -> BrandString {
     append_bytes(RequestType::BrandString2, &mut brand_string.bytes[16..]);
     append_bytes(RequestType::BrandString3, &mut brand_string.bytes[32..]);
     brand_string
+}
+
+#[derive(Copy,Clone)]
+pub struct ThermalPowerManagementInformation {
+    eax: u32,
+    ebx: u32,
+    ecx: u32,
+}
+
+impl ThermalPowerManagementInformation {
+    bit!(eax,  0, digital_temperature_sensor);
+    bit!(eax,  1, intel_turbo_boost);
+    bit!(eax,  2, arat);
+    // 3 - reserved
+    bit!(eax,  4, pln);
+    bit!(eax,  5, ecmd);
+    bit!(eax,  6, ptm);
+    bit!(eax,  7, hwp);
+    bit!(eax,  8, hwp_notification);
+    bit!(eax,  9, hwp_activity_window);
+    bit!(eax, 10, hwp_energy_performance_preference);
+    // 12 - reserved
+    bit!(eax, 13, hdc);
+
+    pub fn number_of_interrupt_thresholds(self) -> u32 {
+        bits_of(self.ebx, 0, 3)
+    }
+
+    bit!(ecx, 0, hardware_coordination_feedback);
+    // 1 - reserved
+    // 2 - reserved
+    bit!(ecx, 3, performance_energy_bias);
+}
+
+impl fmt::Debug for ThermalPowerManagementInformation {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, digital_temperature_sensor);
+        dump!(self, f, intel_turbo_boost);
+        dump!(self, f, arat);
+        dump!(self, f, pln);
+        dump!(self, f, ecmd);
+        dump!(self, f, ptm);
+        dump!(self, f, hwp);
+        dump!(self, f, hwp_notification);
+        dump!(self, f, hwp_activity_window);
+        dump!(self, f, hwp_energy_performance_preference);
+        dump!(self, f, hdc);
+
+        dump!(self, f, number_of_interrupt_thresholds);
+
+        dump!(self, f, hardware_coordination_feedback);
+        dump!(self, f, performance_energy_bias);
+        Ok(())
+    }
+}
+
+pub fn thermal_power_management_information() -> ThermalPowerManagementInformation {
+    let (a, b, c, _) = cpuid(RequestType::ThermalPowerManagementInformation);
+    ThermalPowerManagementInformation { eax: a, ebx: b, ecx: c }
 }
 
 #[derive(Copy,Clone)]
