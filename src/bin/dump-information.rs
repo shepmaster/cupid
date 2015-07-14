@@ -7,4 +7,5 @@ fn main() {
     println!("{}, {}", pas.physical_address_bits(), pas.linear_address_bits());
     println!("{:?}", cupid::structured_extended_information());
     println!("{:?}", cupid::thermal_power_management_information());
+    println!("{:?}", cupid::master());
 }

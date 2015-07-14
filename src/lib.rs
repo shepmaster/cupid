@@ -235,6 +235,16 @@ impl BrandString {
     }
 }
 
+impl Clone for BrandString {
+    fn clone(&self) -> Self {
+        let mut bs = BrandString::new();
+        for (d, s) in bs.bytes.iter_mut().zip(self.bytes.iter()) {
+            *d = *s;
+        }
+        bs
+    }
+}
+
 impl Deref for BrandString {
     type Target = str;
 
@@ -251,9 +261,13 @@ impl fmt::Display for BrandString {
     }
 }
 
-pub fn brand_string() -> BrandString {
-    // Should check supported (EAX Return Value of 0x80000000 ≥ 0x80000004)
+impl fmt::Debug for BrandString {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        (self as &str).fmt(f)
+    }
+}
 
+pub fn brand_string() -> BrandString {
     fn append_bytes(a: RequestType, bytes: &mut [u8]) {
         let (a, b, c, d) = cpuid(a);
 
@@ -422,6 +436,59 @@ impl PhysicalAddressSize {
 pub fn physical_address_size() -> PhysicalAddressSize {
     let (a, _, _, _) = cpuid(RequestType::PhysicalAddressSize);
     PhysicalAddressSize(a)
+}
+
+#[derive(Debug,Clone)]
+pub struct Master {
+    // TODO: Rename struct
+    version_information: Option<FeatureInformation>,
+    thermal_power_management_information: Option<ThermalPowerManagementInformation>,
+    structured_extended_information: Option<StructuredExtendedInformation>,
+    brand_string: Option<BrandString>,
+    physical_address_size: Option<PhysicalAddressSize>,
+}
+
+pub fn master() -> Master {
+    fn when_supported<F, T>(max: u32, kind: RequestType, then: F) -> Option<T>
+        where F: FnOnce() -> T
+    {
+        if max >= kind as u32 {
+            Some(then())
+        } else {
+            None
+        }
+    }
+
+    let (max_value, _, _, _) = cpuid(RequestType::BasicInformation);
+
+    let vi = when_supported(max_value, RequestType::VersionInformation, || {
+        feature_information()
+    });
+    let tpm = when_supported(max_value, RequestType::ThermalPowerManagementInformation, || {
+        thermal_power_management_information()
+    });
+    let sei = when_supported(max_value, RequestType::StructuredExtendedInformation, || {
+        structured_extended_information()
+    });
+
+    // Extended information
+
+    let (max_value, _, _, _) = cpuid(RequestType::ExtendedFunctionInformation);
+
+    let brand_string = when_supported(max_value, RequestType::BrandString3, || {
+        brand_string()
+    });
+    let pas = when_supported(max_value, RequestType::PhysicalAddressSize, || {
+        physical_address_size()
+    });
+
+    Master {
+        version_information: vi,
+        thermal_power_management_information: tpm,
+        structured_extended_information: sei,
+        brand_string: brand_string,
+        physical_address_size: pas,
+    }
 }
 
 #[test]
