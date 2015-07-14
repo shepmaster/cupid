@@ -420,7 +420,7 @@ pub fn structured_extended_information() -> StructuredExtendedInformation {
     StructuredExtendedInformation { ebx: b, ecx: c }
 }
 
-#[derive(Copy,Clone,Debug)]
+#[derive(Copy,Clone)]
 pub struct PhysicalAddressSize(u32);
 
 impl PhysicalAddressSize {
@@ -430,6 +430,14 @@ impl PhysicalAddressSize {
 
     pub fn linear_address_bits(self) -> u32 {
         bits_of(self.0, 8, 15)
+    }
+}
+
+impl fmt::Debug for PhysicalAddressSize {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, physical_address_bits);
+        dump!(self, f, linear_address_bits);
+        Ok(())
     }
 }
 
@@ -446,6 +454,109 @@ pub struct Master {
     structured_extended_information: Option<StructuredExtendedInformation>,
     brand_string: Option<BrandString>,
     physical_address_size: Option<PhysicalAddressSize>,
+}
+
+macro_rules! delegate_flag {
+    ($item:ident, $name:ident) => {
+        pub fn $name(self) -> bool {
+            self.$item.map(|i| i.$name()).unwrap_or(false)
+        }
+    }
+}
+
+impl Master {
+    delegate_flag!(version_information, sse3);
+    delegate_flag!(version_information, pclmulqdq);
+    delegate_flag!(version_information, dtes64);
+    delegate_flag!(version_information, monitor);
+    delegate_flag!(version_information, ds_cpl);
+    delegate_flag!(version_information, vmx);
+    delegate_flag!(version_information, smx);
+    delegate_flag!(version_information, eist);
+    delegate_flag!(version_information, tm2);
+    delegate_flag!(version_information, ssse3);
+    delegate_flag!(version_information, cnxt_id);
+    delegate_flag!(version_information, sdbg);
+    delegate_flag!(version_information, fma);
+    delegate_flag!(version_information, cmpxchg16b);
+    delegate_flag!(version_information, xtpr_update_control);
+    delegate_flag!(version_information, pdcm);
+    delegate_flag!(version_information, pcid);
+    delegate_flag!(version_information, dca);
+    delegate_flag!(version_information, sse4_1);
+    delegate_flag!(version_information, sse4_2);
+    delegate_flag!(version_information, x2apic);
+    delegate_flag!(version_information, movbe);
+    delegate_flag!(version_information, popcnt);
+    delegate_flag!(version_information, tsc_deadline);
+    delegate_flag!(version_information, aesni);
+    delegate_flag!(version_information, xsave);
+    delegate_flag!(version_information, osxsave);
+    delegate_flag!(version_information, avx);
+    delegate_flag!(version_information, f16c);
+    delegate_flag!(version_information, rdrand);
+    delegate_flag!(version_information, fpu);
+    delegate_flag!(version_information, vme);
+    delegate_flag!(version_information, de);
+    delegate_flag!(version_information, pse);
+    delegate_flag!(version_information, tsc);
+    delegate_flag!(version_information, msr);
+    delegate_flag!(version_information, pae);
+    delegate_flag!(version_information, mce);
+    delegate_flag!(version_information, cx8);
+    delegate_flag!(version_information, apic);
+    delegate_flag!(version_information, sep);
+    delegate_flag!(version_information, mtrr);
+    delegate_flag!(version_information, pge);
+    delegate_flag!(version_information, mca);
+    delegate_flag!(version_information, cmov);
+    delegate_flag!(version_information, pat);
+    delegate_flag!(version_information, pse_36);
+    delegate_flag!(version_information, psn);
+    delegate_flag!(version_information, clfsh);
+    delegate_flag!(version_information, ds);
+    delegate_flag!(version_information, acpi);
+    delegate_flag!(version_information, mmx);
+    delegate_flag!(version_information, fxsr);
+    delegate_flag!(version_information, sse);
+    delegate_flag!(version_information, sse2);
+    delegate_flag!(version_information, ss);
+    delegate_flag!(version_information, htt);
+    delegate_flag!(version_information, tm);
+    delegate_flag!(version_information, pbe);
+
+    delegate_flag!(thermal_power_management_information, digital_temperature_sensor);
+    delegate_flag!(thermal_power_management_information, intel_turbo_boost);
+    delegate_flag!(thermal_power_management_information, arat);
+    delegate_flag!(thermal_power_management_information, pln);
+    delegate_flag!(thermal_power_management_information, ecmd);
+    delegate_flag!(thermal_power_management_information, ptm);
+    delegate_flag!(thermal_power_management_information, hwp);
+    delegate_flag!(thermal_power_management_information, hwp_notification);
+    delegate_flag!(thermal_power_management_information, hwp_activity_window);
+    delegate_flag!(thermal_power_management_information, hwp_energy_performance_preference);
+    delegate_flag!(thermal_power_management_information, hdc);
+    delegate_flag!(thermal_power_management_information, hardware_coordination_feedback);
+    delegate_flag!(thermal_power_management_information, performance_energy_bias);
+
+    delegate_flag!(structured_extended_information, fsgsbase);
+    delegate_flag!(structured_extended_information, ia32_tsc_adjust_msr);
+    delegate_flag!(structured_extended_information, bmi1);
+    delegate_flag!(structured_extended_information, hle);
+    delegate_flag!(structured_extended_information, avx2);
+    delegate_flag!(structured_extended_information, smep);
+    delegate_flag!(structured_extended_information, bmi2);
+    delegate_flag!(structured_extended_information, enhanced_rep_movsb_stosb);
+    delegate_flag!(structured_extended_information, invpcid);
+    delegate_flag!(structured_extended_information, rtm);
+    delegate_flag!(structured_extended_information, pqm);
+    delegate_flag!(structured_extended_information, deprecates_fpu_cs_ds);
+    delegate_flag!(structured_extended_information, pqe);
+    delegate_flag!(structured_extended_information, rdseed);
+    delegate_flag!(structured_extended_information, adx);
+    delegate_flag!(structured_extended_information, smap);
+    delegate_flag!(structured_extended_information, intel_processor_trace);
+    delegate_flag!(structured_extended_information, prefetchwt1);
 }
 
 pub fn master() -> Master {
