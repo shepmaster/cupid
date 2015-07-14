@@ -254,7 +254,7 @@ impl Deref for BrandString {
     fn deref(&self) -> &str {
         let nul_terminator = self.bytes.iter().position(|&b| b == 0).unwrap_or(0);
         let usable_bytes = &self.bytes[..nul_terminator];
-        unsafe { str::from_utf8_unchecked(usable_bytes) }
+        unsafe { str::from_utf8_unchecked(usable_bytes) }.trim()
     }
 }
 
