@@ -66,12 +66,12 @@ macro_rules! bit {
 /// the feature mnemonic listed in the Intel Instruction Set
 /// Reference.
 #[derive(Copy, Clone)]
-pub struct FeatureInformation {
+pub struct VersionInformation {
     ecx: u32,
     edx: u32,
 }
 
-impl FeatureInformation {
+impl VersionInformation {
     bit!(ecx,  0, sse3);
     bit!(ecx,  1, pclmulqdq);
     bit!(ecx,  2, dtes64);
@@ -147,9 +147,9 @@ macro_rules! dump {
     }
 }
 
-impl fmt::Debug for FeatureInformation {
+impl fmt::Debug for VersionInformation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dump!(self, f, "FeatureInformation", {
+        dump!(self, f, "VersionInformation", {
             sse3,
             pclmulqdq,
             dtes64,
@@ -213,9 +213,9 @@ impl fmt::Debug for FeatureInformation {
     }
 }
 
-pub fn feature_information() -> FeatureInformation {
+pub fn version_information() -> VersionInformation {
     let (_, _, c, d) = cpuid(RequestType::VersionInformation);
-    FeatureInformation { ecx: c, edx: d }
+    VersionInformation { ecx: c, edx: d }
 }
 
 fn as_bytes(v: &u32) -> &[u8] {
@@ -455,7 +455,7 @@ pub fn physical_address_size() -> PhysicalAddressSize {
 #[derive(Debug,Clone)]
 pub struct Master {
     // TODO: Rename struct
-    version_information: Option<FeatureInformation>,
+    version_information: Option<VersionInformation>,
     thermal_power_management_information: Option<ThermalPowerManagementInformation>,
     structured_extended_information: Option<StructuredExtendedInformation>,
     brand_string: Option<BrandString>,
@@ -579,7 +579,7 @@ pub fn master() -> Master {
     let (max_value, _, _, _) = cpuid(RequestType::BasicInformation);
 
     let vi = when_supported(max_value, RequestType::VersionInformation, || {
-        feature_information()
+        version_information()
     });
     let tpm = when_supported(max_value, RequestType::ThermalPowerManagementInformation, || {
         thermal_power_management_information()
