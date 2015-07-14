@@ -140,73 +140,76 @@ impl FeatureInformation {
 }
 
 macro_rules! dump {
-    ($me:expr, $f: expr, $name: ident) => {
-        try!(writeln!($f, "{}: {}", stringify!($name), $me.$name()));
+    ($me:expr, $f: expr, $sname:expr, {$($name:ident),+}) => {
+        $f.debug_struct($sname)
+            $(.field(stringify!($name), &$me.$name()))+
+            .finish()
     }
 }
 
 impl fmt::Debug for FeatureInformation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dump!(self, f, sse3);
-        dump!(self, f, pclmulqdq);
-        dump!(self, f, dtes64);
-        dump!(self, f, monitor);
-        dump!(self, f, ds_cpl);
-        dump!(self, f, vmx);
-        dump!(self, f, smx);
-        dump!(self, f, eist);
-        dump!(self, f, tm2);
-        dump!(self, f, ssse3);
-        dump!(self, f, cnxt_id);
-        dump!(self, f, sdbg);
-        dump!(self, f, fma);
-        dump!(self, f, cmpxchg16b);
-        dump!(self, f, xtpr_update_control);
-        dump!(self, f, pdcm);
-        dump!(self, f, pcid);
-        dump!(self, f, dca);
-        dump!(self, f, sse4_1);
-        dump!(self, f, sse4_2);
-        dump!(self, f, x2apic);
-        dump!(self, f, movbe);
-        dump!(self, f, popcnt);
-        dump!(self, f, tsc_deadline);
-        dump!(self, f, aesni);
-        dump!(self, f, xsave);
-        dump!(self, f, osxsave);
-        dump!(self, f, avx);
-        dump!(self, f, f16c);
-        dump!(self, f, rdrand);
-        dump!(self, f, fpu);
-        dump!(self, f, vme);
-        dump!(self, f, de);
-        dump!(self, f, pse);
-        dump!(self, f, tsc);
-        dump!(self, f, msr);
-        dump!(self, f, pae);
-        dump!(self, f, mce);
-        dump!(self, f, cx8);
-        dump!(self, f, apic);
-        dump!(self, f, sep);
-        dump!(self, f, mtrr);
-        dump!(self, f, pge);
-        dump!(self, f, mca);
-        dump!(self, f, cmov);
-        dump!(self, f, pat);
-        dump!(self, f, pse_36);
-        dump!(self, f, psn);
-        dump!(self, f, clfsh);
-        dump!(self, f, ds);
-        dump!(self, f, acpi);
-        dump!(self, f, mmx);
-        dump!(self, f, fxsr);
-        dump!(self, f, sse);
-        dump!(self, f, sse2);
-        dump!(self, f, ss);
-        dump!(self, f, htt);
-        dump!(self, f, tm);
-        dump!(self, f, pbe);
-        Ok(())
+        dump!(self, f, "FeatureInformation", {
+            sse3,
+            pclmulqdq,
+            dtes64,
+            monitor,
+            ds_cpl,
+            vmx,
+            smx,
+            eist,
+            tm2,
+            ssse3,
+            cnxt_id,
+            sdbg,
+            fma,
+            cmpxchg16b,
+            xtpr_update_control,
+            pdcm,
+            pcid,
+            dca,
+            sse4_1,
+            sse4_2,
+            x2apic,
+            movbe,
+            popcnt,
+            tsc_deadline,
+            aesni,
+            xsave,
+            osxsave,
+            avx,
+            f16c,
+            rdrand,
+            fpu,
+            vme,
+            de,
+            pse,
+            tsc,
+            msr,
+            pae,
+            mce,
+            cx8,
+            apic,
+            sep,
+            mtrr,
+            pge,
+            mca,
+            cmov,
+            pat,
+            pse_36,
+            psn,
+            clfsh,
+            ds,
+            acpi,
+            mmx,
+            fxsr,
+            sse,
+            sse2,
+            ss,
+            htt,
+            tm,
+            pbe
+        })
     }
 }
 
@@ -323,23 +326,24 @@ impl ThermalPowerManagementInformation {
 
 impl fmt::Debug for ThermalPowerManagementInformation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dump!(self, f, digital_temperature_sensor);
-        dump!(self, f, intel_turbo_boost);
-        dump!(self, f, arat);
-        dump!(self, f, pln);
-        dump!(self, f, ecmd);
-        dump!(self, f, ptm);
-        dump!(self, f, hwp);
-        dump!(self, f, hwp_notification);
-        dump!(self, f, hwp_activity_window);
-        dump!(self, f, hwp_energy_performance_preference);
-        dump!(self, f, hdc);
+        dump!(self, f, "ThermalPowerManagementInformation", {
+            digital_temperature_sensor,
+            intel_turbo_boost,
+            arat,
+            pln,
+            ecmd,
+            ptm,
+            hwp,
+            hwp_notification,
+            hwp_activity_window,
+            hwp_energy_performance_preference,
+            hdc,
 
-        dump!(self, f, number_of_interrupt_thresholds);
+            number_of_interrupt_thresholds,
 
-        dump!(self, f, hardware_coordination_feedback);
-        dump!(self, f, performance_energy_bias);
-        Ok(())
+            hardware_coordination_feedback,
+            performance_energy_bias
+        })
     }
 }
 
@@ -393,25 +397,26 @@ impl StructuredExtendedInformation {
 
 impl fmt::Debug for StructuredExtendedInformation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dump!(self, f, fsgsbase);
-        dump!(self, f, ia32_tsc_adjust_msr);
-        dump!(self, f, bmi1);
-        dump!(self, f, hle);
-        dump!(self, f, avx2);
-        dump!(self, f, smep);
-        dump!(self, f, bmi2);
-        dump!(self, f, enhanced_rep_movsb_stosb);
-        dump!(self, f, invpcid);
-        dump!(self, f, rtm);
-        dump!(self, f, pqm);
-        dump!(self, f, deprecates_fpu_cs_ds);
-        dump!(self, f, pqe);
-        dump!(self, f, rdseed);
-        dump!(self, f, adx);
-        dump!(self, f, smap);
-        dump!(self, f, intel_processor_trace);
-        dump!(self, f, prefetchwt1);
-        Ok(())
+        dump!(self, f, "StructuredExtendedInformation", {
+            fsgsbase,
+            ia32_tsc_adjust_msr,
+            bmi1,
+            hle,
+            avx2,
+            smep,
+            bmi2,
+            enhanced_rep_movsb_stosb,
+            invpcid,
+            rtm,
+            pqm,
+            deprecates_fpu_cs_ds,
+            pqe,
+            rdseed,
+            adx,
+            smap,
+            intel_processor_trace,
+            prefetchwt1
+        })
     }
 }
 
@@ -435,9 +440,10 @@ impl PhysicalAddressSize {
 
 impl fmt::Debug for PhysicalAddressSize {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dump!(self, f, physical_address_bits);
-        dump!(self, f, linear_address_bits);
-        Ok(())
+        dump!(self, f, "PhysicalAddressSize", {
+            physical_address_bits,
+            linear_address_bits
+        })
     }
 }
 
