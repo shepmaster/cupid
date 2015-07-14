@@ -72,6 +72,11 @@ pub struct VersionInformation {
 }
 
 impl VersionInformation {
+    fn new() -> VersionInformation {
+        let (_, _, c, d) = cpuid(RequestType::VersionInformation);
+        VersionInformation { ecx: c, edx: d }
+    }
+
     bit!(ecx,  0, sse3);
     bit!(ecx,  1, pclmulqdq);
     bit!(ecx,  2, dtes64);
@@ -213,11 +218,6 @@ impl fmt::Debug for VersionInformation {
     }
 }
 
-pub fn version_information() -> VersionInformation {
-    let (_, _, c, d) = cpuid(RequestType::VersionInformation);
-    VersionInformation { ecx: c, edx: d }
-}
-
 fn as_bytes(v: &u32) -> &[u8] {
     let start = v as *const u32 as *const u8;
     // TODO: use u32::BYTES
@@ -234,17 +234,35 @@ pub struct BrandString {
 
 impl BrandString {
     fn new() -> BrandString {
-        BrandString { bytes: [0; BRAND_STRING_LENGTH] }
+        fn append_bytes(a: RequestType, bytes: &mut [u8]) {
+            let (a, b, c, d) = cpuid(a);
+
+            let result_bytes =
+                as_bytes(&a).iter()
+                .chain(as_bytes(&b).iter())
+                .chain(as_bytes(&c).iter())
+                .chain(as_bytes(&d).iter());
+
+            for (output, input) in bytes.iter_mut().zip(result_bytes) {
+                *output = *input
+            }
+        }
+
+        let mut brand_string = BrandString { bytes: [0; BRAND_STRING_LENGTH] };
+        append_bytes(RequestType::BrandString1, &mut brand_string.bytes[0..]);
+        append_bytes(RequestType::BrandString2, &mut brand_string.bytes[16..]);
+        append_bytes(RequestType::BrandString3, &mut brand_string.bytes[32..]);
+        brand_string
     }
 }
 
 impl Clone for BrandString {
     fn clone(&self) -> Self {
-        let mut bs = BrandString::new();
-        for (d, s) in bs.bytes.iter_mut().zip(self.bytes.iter()) {
+        let mut bytes = [0; BRAND_STRING_LENGTH];
+        for (d, s) in bytes.iter_mut().zip(self.bytes.iter()) {
             *d = *s;
         }
-        bs
+        BrandString { bytes: bytes }
     }
 }
 
@@ -270,28 +288,6 @@ impl fmt::Debug for BrandString {
     }
 }
 
-pub fn brand_string() -> BrandString {
-    fn append_bytes(a: RequestType, bytes: &mut [u8]) {
-        let (a, b, c, d) = cpuid(a);
-
-        let result_bytes =
-            as_bytes(&a).iter()
-            .chain(as_bytes(&b).iter())
-            .chain(as_bytes(&c).iter())
-            .chain(as_bytes(&d).iter());
-
-        for (output, input) in bytes.iter_mut().zip(result_bytes) {
-            *output = *input
-        }
-    }
-
-    let mut brand_string = BrandString::new();
-    append_bytes(RequestType::BrandString1, &mut brand_string.bytes[0..]);
-    append_bytes(RequestType::BrandString2, &mut brand_string.bytes[16..]);
-    append_bytes(RequestType::BrandString3, &mut brand_string.bytes[32..]);
-    brand_string
-}
-
 #[derive(Copy,Clone)]
 pub struct ThermalPowerManagementInformation {
     eax: u32,
@@ -300,6 +296,11 @@ pub struct ThermalPowerManagementInformation {
 }
 
 impl ThermalPowerManagementInformation {
+    fn new() -> ThermalPowerManagementInformation {
+        let (a, b, c, _) = cpuid(RequestType::ThermalPowerManagementInformation);
+        ThermalPowerManagementInformation { eax: a, ebx: b, ecx: c }
+    }
+
     bit!(eax,  0, digital_temperature_sensor);
     bit!(eax,  1, intel_turbo_boost);
     bit!(eax,  2, arat);
@@ -347,11 +348,6 @@ impl fmt::Debug for ThermalPowerManagementInformation {
     }
 }
 
-pub fn thermal_power_management_information() -> ThermalPowerManagementInformation {
-    let (a, b, c, _) = cpuid(RequestType::ThermalPowerManagementInformation);
-    ThermalPowerManagementInformation { eax: a, ebx: b, ecx: c }
-}
-
 #[derive(Copy,Clone)]
 pub struct StructuredExtendedInformation {
     ebx: u32,
@@ -359,6 +355,11 @@ pub struct StructuredExtendedInformation {
 }
 
 impl StructuredExtendedInformation {
+    fn new() -> StructuredExtendedInformation {
+        let (_, b, c, _) = cpuid(RequestType::StructuredExtendedInformation);
+        StructuredExtendedInformation { ebx: b, ecx: c }
+    }
+
     bit!(ebx,  0, fsgsbase);
     bit!(ebx,  1, ia32_tsc_adjust_msr);
     // 2 - reserved
@@ -420,15 +421,15 @@ impl fmt::Debug for StructuredExtendedInformation {
     }
 }
 
-pub fn structured_extended_information() -> StructuredExtendedInformation {
-    let (_, b, c, _) = cpuid(RequestType::StructuredExtendedInformation);
-    StructuredExtendedInformation { ebx: b, ecx: c }
-}
-
 #[derive(Copy,Clone)]
 pub struct PhysicalAddressSize(u32);
 
 impl PhysicalAddressSize {
+    fn new() -> PhysicalAddressSize {
+        let (a, _, _, _) = cpuid(RequestType::PhysicalAddressSize);
+        PhysicalAddressSize(a)
+    }
+
     pub fn physical_address_bits(self) -> u32 {
         bits_of(self.0, 0, 7)
     }
@@ -445,11 +446,6 @@ impl fmt::Debug for PhysicalAddressSize {
             linear_address_bits
         })
     }
-}
-
-pub fn physical_address_size() -> PhysicalAddressSize {
-    let (a, _, _, _) = cpuid(RequestType::PhysicalAddressSize);
-    PhysicalAddressSize(a)
 }
 
 #[derive(Debug,Clone)]
@@ -471,6 +467,49 @@ macro_rules! delegate_flag {
 }
 
 impl Master {
+    pub fn new() -> Master {
+        fn when_supported<F, T>(max: u32, kind: RequestType, then: F) -> Option<T>
+            where F: FnOnce() -> T
+        {
+            if max >= kind as u32 {
+                Some(then())
+            } else {
+                None
+            }
+        }
+
+        let (max_value, _, _, _) = cpuid(RequestType::BasicInformation);
+
+        let vi = when_supported(max_value, RequestType::VersionInformation, || {
+            VersionInformation::new()
+        });
+        let tpm = when_supported(max_value, RequestType::ThermalPowerManagementInformation, || {
+            ThermalPowerManagementInformation::new()
+        });
+        let sei = when_supported(max_value, RequestType::StructuredExtendedInformation, || {
+            StructuredExtendedInformation::new()
+        });
+
+        // Extended information
+
+        let (max_value, _, _, _) = cpuid(RequestType::ExtendedFunctionInformation);
+
+        let brand_string = when_supported(max_value, RequestType::BrandString3, || {
+            BrandString::new()
+        });
+        let pas = when_supported(max_value, RequestType::PhysicalAddressSize, || {
+            PhysicalAddressSize::new()
+        });
+
+        Master {
+            version_information: vi,
+            thermal_power_management_information: tpm,
+            structured_extended_information: sei,
+            brand_string: brand_string,
+            physical_address_size: pas,
+        }
+    }
+
     delegate_flag!(version_information, sse3);
     delegate_flag!(version_information, pclmulqdq);
     delegate_flag!(version_information, dtes64);
@@ -566,46 +605,7 @@ impl Master {
 }
 
 pub fn master() -> Master {
-    fn when_supported<F, T>(max: u32, kind: RequestType, then: F) -> Option<T>
-        where F: FnOnce() -> T
-    {
-        if max >= kind as u32 {
-            Some(then())
-        } else {
-            None
-        }
-    }
-
-    let (max_value, _, _, _) = cpuid(RequestType::BasicInformation);
-
-    let vi = when_supported(max_value, RequestType::VersionInformation, || {
-        version_information()
-    });
-    let tpm = when_supported(max_value, RequestType::ThermalPowerManagementInformation, || {
-        thermal_power_management_information()
-    });
-    let sei = when_supported(max_value, RequestType::StructuredExtendedInformation, || {
-        structured_extended_information()
-    });
-
-    // Extended information
-
-    let (max_value, _, _, _) = cpuid(RequestType::ExtendedFunctionInformation);
-
-    let brand_string = when_supported(max_value, RequestType::BrandString3, || {
-        brand_string()
-    });
-    let pas = when_supported(max_value, RequestType::PhysicalAddressSize, || {
-        physical_address_size()
-    });
-
-    Master {
-        version_information: vi,
-        thermal_power_management_information: tpm,
-        structured_extended_information: sei,
-        brand_string: brand_string,
-        physical_address_size: pas,
-    }
+    Master::new()
 }
 
 #[test]
