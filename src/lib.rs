@@ -13,6 +13,7 @@ enum RequestType {
     BrandString1                      = 0x80000002,
     BrandString2                      = 0x80000003,
     BrandString3                      = 0x80000004,
+    CacheLine                         = 0x80000006,
     PhysicalAddressSize               = 0x80000008,
 }
 
@@ -553,6 +554,58 @@ impl fmt::Debug for StructuredExtendedInformation {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum CacheLineAssociativity {
+    Disabled,
+    DirectMapped,
+    TwoWay,
+    FourWay,
+    EightWay,
+    SixteenWay,
+    Full,
+}
+
+#[derive(Copy, Clone)]
+pub struct CacheLine(u32);
+
+impl CacheLine {
+    fn new() -> CacheLine {
+        let (_, _, c, _) = cpuid(RequestType::CacheLine);
+        CacheLine(c)
+    }
+
+    fn cache_line_size(self) -> u32 {
+        bits_of(self.0, 0, 7)
+    }
+
+    fn l2_associativity(self) -> Option<CacheLineAssociativity> {
+        match bits_of(self.0, 12, 15) {
+            0x00 => Some(CacheLineAssociativity::Disabled),
+            0x01 => Some(CacheLineAssociativity::DirectMapped),
+            0x02 => Some(CacheLineAssociativity::TwoWay),
+            0x04 => Some(CacheLineAssociativity::FourWay),
+            0x06 => Some(CacheLineAssociativity::EightWay),
+            0x08 => Some(CacheLineAssociativity::SixteenWay),
+            0x0F => Some(CacheLineAssociativity::Full),
+            _ => None,
+        }
+    }
+
+    fn cache_size(self) -> u32 {
+        bits_of(self.0, 16, 31)
+    }
+}
+
+impl fmt::Debug for CacheLine {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "CacheLine", {
+            cache_line_size,
+            l2_associativity,
+            cache_size
+        })
+    }
+}
+
 #[derive(Copy,Clone)]
 pub struct PhysicalAddressSize(u32);
 
@@ -588,6 +641,7 @@ pub struct Master {
     structured_extended_information: Option<StructuredExtendedInformation>,
     extended_processor_signature: Option<ExtendedProcessorSignature>,
     brand_string: Option<BrandString>,
+    cache_line: Option<CacheLine>,
     physical_address_size: Option<PhysicalAddressSize>,
 }
 
@@ -633,6 +687,9 @@ impl Master {
         let brand_string = when_supported(max_value, RequestType::BrandString3, || {
             BrandString::new()
         });
+        let cache_line = when_supported(max_value, RequestType::CacheLine, || {
+            CacheLine::new()
+        });
         let pas = when_supported(max_value, RequestType::PhysicalAddressSize, || {
             PhysicalAddressSize::new()
         });
@@ -643,6 +700,7 @@ impl Master {
             structured_extended_information: sei,
             extended_processor_signature: eps,
             brand_string: brand_string,
+            cache_line: cache_line,
             physical_address_size: pas,
         }
     }
