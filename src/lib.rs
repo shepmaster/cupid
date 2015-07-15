@@ -69,14 +69,15 @@ macro_rules! bit {
 #[derive(Copy, Clone)]
 pub struct VersionInformation {
     eax: u32,
+    ebx: u32,
     ecx: u32,
     edx: u32,
 }
 
 impl VersionInformation {
     fn new() -> VersionInformation {
-        let (a, _, c, d) = cpuid(RequestType::VersionInformation);
-        VersionInformation { eax: a, ecx: c, edx: d }
+        let (a, b, c, d) = cpuid(RequestType::VersionInformation);
+        VersionInformation { eax: a, ebx: b, ecx: c, edx: d }
     }
 
     pub fn family_id(self) -> u32 {
@@ -104,6 +105,58 @@ impl VersionInformation {
 
     pub fn stepping(self) -> u32 {
         bits_of(self.eax, 0, 3)
+    }
+
+    fn processor_signature(self) -> u32 {
+        self.eax
+    }
+
+    pub fn brand_string(self) -> Option<&'static str> {
+        let brand_index = bits_of(self.ebx, 0, 7);
+        let processor_signature = self.processor_signature();
+
+        match brand_index {
+            0x00 => None,
+            0x01 => Some("Intel(R) Celeron(R)"),
+            0x02 => Some("Intel(R) Pentium(R) III"),
+            0x03 => {
+                if processor_signature == 0x06B1 {
+                    Some("Intel(R) Celeron(R)")
+                } else {
+                    Some("Intel(R) Pentium(R) III Xeon(R)")
+                }
+            },
+            0x04 => Some("Intel(R) Pentium(R) III"),
+            0x06 => Some("Mobile Intel(R) Pentium(R) III-M"),
+            0x07 => Some("Mobile Intel(R) Celeron(R)"),
+            0x08 => Some("Intel(R) Pentium(R) 4"),
+            0x09 => Some("Intel(R) Pentium(R) 4"),
+            0x0A => Some("Intel(R) Celeron(R)"),
+            0x0B => {
+                if processor_signature == 0x0F13 {
+                    Some("Intel(R) Xeon(R) MP")
+                } else {
+                    Some("Intel(R) Xeon(R)")
+                }
+            },
+            0x0C => Some("Intel(R) Xeon(R) MP"),
+            0x0E => {
+                if processor_signature == 0x0F13 {
+                    Some("Intel(R) Xeon(R)")
+                } else {
+                    Some("Mobile Intel(R) Pentium(R) 4-M")
+                }
+            },
+            0x0F => Some("Mobile Intel(R) Celeron(R)"),
+            0x11 => Some("Mobile Genuine Intel(R)"),
+            0x12 => Some("Intel(R) Celeron(R) M"),
+            0x13 => Some("Mobile Intel(R) Celeron(R)"),
+            0x14 => Some("Intel(R) Celeron(R)"),
+            0x15 => Some("Mobile Genuine Intel(R)"),
+            0x16 => Some("Intel(R) Pentium(R) M"),
+            0x17 => Some("Mobile Intel(R) Celeron(R)"),
+            _ => None,
+        }
     }
 
     bit!(ecx,  0, sse3);
@@ -187,6 +240,7 @@ impl fmt::Debug for VersionInformation {
             family_id,
             model_id,
             stepping,
+            brand_string,
             sse3,
             pclmulqdq,
             dtes64,
@@ -593,8 +647,10 @@ impl Master {
         }
     }
 
-    pub fn name(&self) -> Option<&str> {
-        self.brand_string.as_ref().map(|a| a as &str)
+    pub fn brand_string(&self) -> Option<&str> {
+        self.brand_string.as_ref().map(|bs| bs as &str).or({
+            self.version_information.and_then(|vi| vi.brand_string())
+        })
     }
 
     delegate_flag!(version_information, sse3);
@@ -715,5 +771,5 @@ fn basic_genuine_intel() {
 
 #[test]
 fn brand_string_contains_intel() {
-    assert!(master().name().unwrap().contains("Intel(R)"))
+    assert!(master().brand_string().unwrap().contains("Intel(R)"))
 }
