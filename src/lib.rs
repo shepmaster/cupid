@@ -9,6 +9,7 @@ enum RequestType {
     ThermalPowerManagementInformation = 0x00000006,
     StructuredExtendedInformation     = 0x00000007,
     ExtendedFunctionInformation       = 0x80000000,
+    ExtendedProcessorSignature        = 0x80000001,
     BrandString1                      = 0x80000002,
     BrandString2                      = 0x80000003,
     BrandString3                      = 0x80000004,
@@ -249,6 +250,52 @@ impl fmt::Debug for VersionInformation {
     }
 }
 
+#[derive(Copy,Clone)]
+struct ExtendedProcessorSignature {
+    ecx: u32,
+    edx: u32,
+}
+
+impl ExtendedProcessorSignature {
+    fn new() -> ExtendedProcessorSignature {
+        let (_, _, c, d) = cpuid(RequestType::ExtendedProcessorSignature);
+        ExtendedProcessorSignature { ecx: c, edx: d }
+    }
+
+    bit!(ecx,  0, lahf_sahf_in_64_bit);
+    // 1-4 reserved
+    bit!(ecx,  5, lzcnt);
+    // 6-7 reserved
+    bit!(ecx,  8, prefetchw);
+    // 9-31 reserved
+
+    // 0-10 reserved
+    bit!(ecx, 11, syscall_sysret_in_64_bit);
+    // 12-19 reserved
+    bit!(ecx, 20, execute_disable);
+    // 21-25 reserved
+    bit!(ecx, 26, gigabyte_pages);
+    bit!(ecx, 27, rdtscp_and_ia32_tsc_aux);
+    // 28 reserved
+    bit!(ecx, 29, intel_64_bit_architecture);
+    // 30-31 reserved
+}
+
+impl fmt::Debug for ExtendedProcessorSignature {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "ThermalPowerManagementInformation", {
+            lahf_sahf_in_64_bit,
+            lzcnt,
+            prefetchw,
+            syscall_sysret_in_64_bit,
+            execute_disable,
+            gigabyte_pages,
+            rdtscp_and_ia32_tsc_aux,
+            intel_64_bit_architecture
+        })
+    }
+}
+
 fn as_bytes(v: &u32) -> &[u8] {
     let start = v as *const u32 as *const u8;
     // TODO: use u32::BYTES
@@ -485,6 +532,7 @@ pub struct Master {
     version_information: Option<VersionInformation>,
     thermal_power_management_information: Option<ThermalPowerManagementInformation>,
     structured_extended_information: Option<StructuredExtendedInformation>,
+    extended_processor_signature: Option<ExtendedProcessorSignature>,
     brand_string: Option<BrandString>,
     physical_address_size: Option<PhysicalAddressSize>,
 }
@@ -525,6 +573,9 @@ impl Master {
 
         let (max_value, _, _, _) = cpuid(RequestType::ExtendedFunctionInformation);
 
+        let eps = when_supported(max_value, RequestType::ExtendedProcessorSignature, || {
+            ExtendedProcessorSignature::new()
+        });
         let brand_string = when_supported(max_value, RequestType::BrandString3, || {
             BrandString::new()
         });
@@ -536,6 +587,7 @@ impl Master {
             version_information: vi,
             thermal_power_management_information: tpm,
             structured_extended_information: sei,
+            extended_processor_signature: eps,
             brand_string: brand_string,
             physical_address_size: pas,
         }
@@ -633,6 +685,15 @@ impl Master {
     delegate_flag!(structured_extended_information, smap);
     delegate_flag!(structured_extended_information, intel_processor_trace);
     delegate_flag!(structured_extended_information, prefetchwt1);
+
+    delegate_flag!(extended_processor_signature, lahf_sahf_in_64_bit);
+    delegate_flag!(extended_processor_signature, lzcnt);
+    delegate_flag!(extended_processor_signature, prefetchw);
+    delegate_flag!(extended_processor_signature, syscall_sysret_in_64_bit);
+    delegate_flag!(extended_processor_signature, execute_disable);
+    delegate_flag!(extended_processor_signature, gigabyte_pages);
+    delegate_flag!(extended_processor_signature, rdtscp_and_ia32_tsc_aux);
+    delegate_flag!(extended_processor_signature, intel_64_bit_architecture);
 }
 
 pub fn master() -> Master {
