@@ -67,14 +67,42 @@ macro_rules! bit {
 /// Reference.
 #[derive(Copy, Clone)]
 pub struct VersionInformation {
+    eax: u32,
     ecx: u32,
     edx: u32,
 }
 
 impl VersionInformation {
     fn new() -> VersionInformation {
-        let (_, _, c, d) = cpuid(RequestType::VersionInformation);
-        VersionInformation { ecx: c, edx: d }
+        let (a, _, c, d) = cpuid(RequestType::VersionInformation);
+        VersionInformation { eax: a, ecx: c, edx: d }
+    }
+
+    pub fn family_id(self) -> u32 {
+        let family_id = bits_of(self.eax, 8, 11);
+        let extended_family_id = bits_of(self.eax, 20, 27);
+
+        if family_id != 0x0F {
+            family_id
+        } else {
+            extended_family_id + family_id
+        }
+    }
+
+    pub fn model_id(self) -> u32 {
+        let family_id = self.family_id();
+        let model_id = bits_of(self.eax, 4, 7);
+        let extended_model_id = bits_of(self.eax, 16, 19);
+
+        if family_id == 0x06 || family_id == 0x0F {
+            (extended_model_id << 4) + model_id
+        } else {
+            model_id
+        }
+    }
+
+    pub fn stepping(self) -> u32 {
+        bits_of(self.eax, 0, 3)
     }
 
     bit!(ecx,  0, sse3);
@@ -155,6 +183,9 @@ macro_rules! dump {
 impl fmt::Debug for VersionInformation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         dump!(self, f, "VersionInformation", {
+            family_id,
+            model_id,
+            stepping,
             sse3,
             pclmulqdq,
             dtes64,
