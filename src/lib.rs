@@ -593,6 +593,10 @@ impl Master {
         }
     }
 
+    pub fn name(&self) -> Option<&str> {
+        self.brand_string.as_ref().map(|a| a as &str)
+    }
+
     delegate_flag!(version_information, sse3);
     delegate_flag!(version_information, pclmulqdq);
     delegate_flag!(version_information, dtes64);
@@ -711,5 +715,5 @@ fn basic_genuine_intel() {
 
 #[test]
 fn brand_string_contains_intel() {
-    assert!(brand_string().contains("Intel(R)"))
+    assert!(master().name().unwrap().contains("Intel(R)"))
 }
