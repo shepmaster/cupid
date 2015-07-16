@@ -56,10 +56,32 @@ fn bits_of(val: u32, start_bit: u8, end_bit: u8) -> u32 {
     (val >> start_bit) & silly
 }
 
+fn as_bytes(v: &u32) -> &[u8] {
+    let start = v as *const u32 as *const u8;
+    // TODO: use u32::BYTES
+    unsafe { slice::from_raw_parts(start, 4) }
+}
+
 macro_rules! bit {
     ($reg:ident, $idx:expr, $name:ident) => {
         pub fn $name(self) -> bool {
             ((self.$reg >> $idx) & 1) != 0
+        }
+    }
+}
+
+macro_rules! dump {
+    ($me:expr, $f: expr, $sname:expr, {$($name:ident),+}) => {
+        $f.debug_struct($sname)
+            $(.field(stringify!($name), &$me.$name()))+
+            .finish()
+    }
+}
+
+macro_rules! delegate_flag {
+    ($item:ident, $name:ident) => {
+        pub fn $name(self) -> bool {
+            self.$item.map(|i| i.$name()).unwrap_or(false)
         }
     }
 }
@@ -229,14 +251,6 @@ impl VersionInformation {
     bit!(edx, 31, pbe);
 }
 
-macro_rules! dump {
-    ($me:expr, $f: expr, $sname:expr, {$($name:ident),+}) => {
-        $f.debug_struct($sname)
-            $(.field(stringify!($name), &$me.$name()))+
-            .finish()
-    }
-}
-
 impl fmt::Debug for VersionInformation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         dump!(self, f, "VersionInformation", {
@@ -351,12 +365,6 @@ impl fmt::Debug for ExtendedProcessorSignature {
             intel_64_bit_architecture
         })
     }
-}
-
-fn as_bytes(v: &u32) -> &[u8] {
-    let start = v as *const u32 as *const u8;
-    // TODO: use u32::BYTES
-    unsafe { slice::from_raw_parts(start, 4) }
 }
 
 // 3 calls of 4 registers of 4 bytes
@@ -660,14 +668,6 @@ pub struct Master {
     cache_line: Option<CacheLine>,
     time_stamp_counter: Option<TimeStampCounter>,
     physical_address_size: Option<PhysicalAddressSize>,
-}
-
-macro_rules! delegate_flag {
-    ($item:ident, $name:ident) => {
-        pub fn $name(self) -> bool {
-            self.$item.map(|i| i.$name()).unwrap_or(false)
-        }
-    }
 }
 
 impl Master {
