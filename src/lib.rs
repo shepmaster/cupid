@@ -14,6 +14,7 @@ enum RequestType {
     BrandString2                      = 0x80000003,
     BrandString3                      = 0x80000004,
     CacheLine                         = 0x80000006,
+    TimeStampCounter                  = 0x80000007,
     PhysicalAddressSize               = 0x80000008,
 }
 
@@ -606,6 +607,30 @@ impl fmt::Debug for CacheLine {
     }
 }
 
+#[derive(Copy, Clone)]
+pub struct TimeStampCounter {
+    edx: u32,
+}
+
+impl TimeStampCounter {
+    fn new() -> TimeStampCounter {
+        let (_, _, _, d) = cpuid(RequestType::TimeStampCounter);
+        TimeStampCounter { edx: d }
+    }
+
+    // 0-7 - reserved
+    bit!(edx, 8, invariant_tsc);
+    // 9-31 - reserved
+}
+
+impl fmt::Debug for TimeStampCounter {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "TimeStampCounter", {
+            invariant_tsc
+        })
+    }
+}
+
 #[derive(Copy,Clone)]
 pub struct PhysicalAddressSize(u32);
 
@@ -642,6 +667,7 @@ pub struct Master {
     extended_processor_signature: Option<ExtendedProcessorSignature>,
     brand_string: Option<BrandString>,
     cache_line: Option<CacheLine>,
+    time_stamp_counter: Option<TimeStampCounter>,
     physical_address_size: Option<PhysicalAddressSize>,
 }
 
@@ -690,6 +716,9 @@ impl Master {
         let cache_line = when_supported(max_value, RequestType::CacheLine, || {
             CacheLine::new()
         });
+        let tsc = when_supported(max_value, RequestType::TimeStampCounter, || {
+            TimeStampCounter::new()
+        });
         let pas = when_supported(max_value, RequestType::PhysicalAddressSize, || {
             PhysicalAddressSize::new()
         });
@@ -701,6 +730,7 @@ impl Master {
             extended_processor_signature: eps,
             brand_string: brand_string,
             cache_line: cache_line,
+            time_stamp_counter: tsc,
             physical_address_size: pas,
         }
     }
@@ -812,6 +842,8 @@ impl Master {
     delegate_flag!(extended_processor_signature, gigabyte_pages);
     delegate_flag!(extended_processor_signature, rdtscp_and_ia32_tsc_aux);
     delegate_flag!(extended_processor_signature, intel_64_bit_architecture);
+
+    delegate_flag!(time_stamp_counter, invariant_tsc);
 }
 
 pub fn master() -> Master {
