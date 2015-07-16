@@ -13,6 +13,7 @@ enum RequestType {
     BrandString1                      = 0x80000002,
     BrandString2                      = 0x80000003,
     BrandString3                      = 0x80000004,
+    // reserved                       = 0x80000005,
     CacheLine                         = 0x80000006,
     TimeStampCounter                  = 0x80000007,
     PhysicalAddressSize               = 0x80000008,
@@ -454,8 +455,7 @@ impl ThermalPowerManagementInformation {
     }
 
     bit!(ecx, 0, hardware_coordination_feedback);
-    // 1 - reserved
-    // 2 - reserved
+    // 1-2 - reserved
     bit!(ecx, 3, performance_energy_bias);
 }
 
@@ -510,22 +510,13 @@ impl StructuredExtendedInformation {
     bit!(ebx, 13, deprecates_fpu_cs_ds);
     // 14 - reserved
     bit!(ebx, 15, pqe);
-    // 16 - reserved
-    // 17 - reserved
+    // 16-17 - reserved
     bit!(ebx, 18, rdseed);
     bit!(ebx, 19, adx);
     bit!(ebx, 20, smap);
-    // 21 - reserved
-    // 22 - reserved
-    // 23 - reserved
-    // 24 - reserved
+    // 21-24 - reserved
     bit!(ebx, 25, intel_processor_trace);
-    // 26 - reserved
-    // 27 - reserved
-    // 28 - reserved
-    // 29 - reserved
-    // 30 - reserved
-    // 31 - reserved
+    // 26-31 - reserved
 
     bit!(ecx,  0, prefetchwt1);
 }
