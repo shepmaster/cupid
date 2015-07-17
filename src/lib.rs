@@ -63,10 +63,10 @@ fn as_bytes(v: &u32) -> &[u8] {
 }
 
 macro_rules! bit {
-    ($reg:ident, $idx:expr, $name:ident) => {
-        pub fn $name(self) -> bool {
+    ($reg:ident, {$($idx:expr => $name:ident),+}) => {
+        $(pub fn $name(self) -> bool {
             ((self.$reg >> $idx) & 1) != 0
-        }
+        })+
     }
 }
 
@@ -184,71 +184,75 @@ impl VersionInformation {
         }
     }
 
-    bit!(ecx,  0, sse3);
-    bit!(ecx,  1, pclmulqdq);
-    bit!(ecx,  2, dtes64);
-    bit!(ecx,  3, monitor);
-    bit!(ecx,  4, ds_cpl);
-    bit!(ecx,  5, vmx);
-    bit!(ecx,  6, smx);
-    bit!(ecx,  7, eist);
-    bit!(ecx,  8, tm2);
-    bit!(ecx,  9, ssse3);
-    bit!(ecx, 10, cnxt_id);
-    bit!(ecx, 11, sdbg);
-    bit!(ecx, 12, fma);
-    bit!(ecx, 13, cmpxchg16b);
-    bit!(ecx, 14, xtpr_update_control);
-    bit!(ecx, 15, pdcm);
-    // 16 - reserved
-    bit!(ecx, 17, pcid);
-    bit!(ecx, 18, dca);
-    bit!(ecx, 19, sse4_1);
-    bit!(ecx, 20, sse4_2);
-    bit!(ecx, 21, x2apic);
-    bit!(ecx, 22, movbe);
-    bit!(ecx, 23, popcnt);
-    bit!(ecx, 24, tsc_deadline);
-    bit!(ecx, 25, aesni);
-    bit!(ecx, 26, xsave);
-    bit!(ecx, 27, osxsave);
-    bit!(ecx, 28, avx);
-    bit!(ecx, 29, f16c);
-    bit!(ecx, 30, rdrand);
-    // 31 - unused
+    bit!(ecx, {
+         0 => sse3,
+         1 => pclmulqdq,
+         2 => dtes64,
+         3 => monitor,
+         4 => ds_cpl,
+         5 => vmx,
+         6 => smx,
+         7 => eist,
+         8 => tm2,
+         9 => ssse3,
+        10 => cnxt_id,
+        11 => sdbg,
+        12 => fma,
+        13 => cmpxchg16b,
+        14 => xtpr_update_control,
+        15 => pdcm,
+        // 16 - reserved
+        17 => pcid,
+        18 => dca,
+        19 => sse4_1,
+        20 => sse4_2,
+        21 => x2apic,
+        22 => movbe,
+        23 => popcnt,
+        24 => tsc_deadline,
+        25 => aesni,
+        26 => xsave,
+        27 => osxsave,
+        28 => avx,
+        29 => f16c,
+        30 => rdrand
+        // 31 - unused
+    });
 
-    bit!(edx,  0, fpu);
-    bit!(edx,  1, vme);
-    bit!(edx,  2, de);
-    bit!(edx,  3, pse);
-    bit!(edx,  4, tsc);
-    bit!(edx,  5, msr);
-    bit!(edx,  6, pae);
-    bit!(edx,  7, mce);
-    bit!(edx,  8, cx8);
-    bit!(edx,  9, apic);
-    // 10 - reserved
-    bit!(edx, 11, sep);
-    bit!(edx, 12, mtrr);
-    bit!(edx, 13, pge);
-    bit!(edx, 14, mca);
-    bit!(edx, 15, cmov);
-    bit!(edx, 16, pat);
-    bit!(edx, 17, pse_36);
-    bit!(edx, 18, psn);
-    bit!(edx, 19, clfsh);
-    // 20 - reserved
-    bit!(edx, 21, ds);
-    bit!(edx, 22, acpi);
-    bit!(edx, 23, mmx);
-    bit!(edx, 24, fxsr);
-    bit!(edx, 25, sse);
-    bit!(edx, 26, sse2);
-    bit!(edx, 27, ss);
-    bit!(edx, 28, htt);
-    bit!(edx, 29, tm);
-    // 30 -reserved
-    bit!(edx, 31, pbe);
+    bit!(edx, {
+        0 => fpu,
+        1 => vme,
+        2 => de,
+        3 => pse,
+        4 => tsc,
+        5 => msr,
+        6 => pae,
+        7 => mce,
+        8 => cx8,
+        9 => apic,
+        // 10 - reserved
+        11 => sep,
+        12 => mtrr,
+        13 => pge,
+        14 => mca,
+        15 => cmov,
+        16 => pat,
+        17 => pse_36,
+        18 => psn,
+        19 => clfsh,
+        // 20 - reserved
+        21 => ds,
+        22 => acpi,
+        23 => mmx,
+        24 => fxsr,
+        25 => sse,
+        26 => sse2,
+        27 => ss,
+        28 => htt,
+        29 => tm,
+        // 30 -reserved
+        31 => pbe
+    });
 }
 
 impl fmt::Debug for VersionInformation {
@@ -333,23 +337,27 @@ impl ExtendedProcessorSignature {
         ExtendedProcessorSignature { ecx: c, edx: d }
     }
 
-    bit!(ecx,  0, lahf_sahf_in_64_bit);
-    // 1-4 reserved
-    bit!(ecx,  5, lzcnt);
-    // 6-7 reserved
-    bit!(ecx,  8, prefetchw);
-    // 9-31 reserved
+    bit!(ecx, {
+        0 => lahf_sahf_in_64_bit,
+        // 1-4 reserved
+        5 => lzcnt,
+        // 6-7 reserved
+        8 => prefetchw
+        // 9-31 reserved
+    });
 
-    // 0-10 reserved
-    bit!(ecx, 11, syscall_sysret_in_64_bit);
-    // 12-19 reserved
-    bit!(ecx, 20, execute_disable);
-    // 21-25 reserved
-    bit!(ecx, 26, gigabyte_pages);
-    bit!(ecx, 27, rdtscp_and_ia32_tsc_aux);
-    // 28 reserved
-    bit!(ecx, 29, intel_64_bit_architecture);
-    // 30-31 reserved
+    bit!(edx, {
+        // 0-10 reserved
+        11 => syscall_sysret_in_64_bit,
+        // 12-19 reserved
+        20 => execute_disable,
+        // 21-25 reserved
+        26 => gigabyte_pages,
+        27 => rdtscp_and_ia32_tsc_aux,
+        // 28 reserved
+        29 => intel_64_bit_architecture
+        // 30-31 reserved
+    });
 }
 
 impl fmt::Debug for ExtendedProcessorSignature {
@@ -444,27 +452,31 @@ impl ThermalPowerManagementInformation {
         ThermalPowerManagementInformation { eax: a, ebx: b, ecx: c }
     }
 
-    bit!(eax,  0, digital_temperature_sensor);
-    bit!(eax,  1, intel_turbo_boost);
-    bit!(eax,  2, arat);
-    // 3 - reserved
-    bit!(eax,  4, pln);
-    bit!(eax,  5, ecmd);
-    bit!(eax,  6, ptm);
-    bit!(eax,  7, hwp);
-    bit!(eax,  8, hwp_notification);
-    bit!(eax,  9, hwp_activity_window);
-    bit!(eax, 10, hwp_energy_performance_preference);
-    // 12 - reserved
-    bit!(eax, 13, hdc);
+    bit!(eax, {
+        0 => digital_temperature_sensor,
+        1 => intel_turbo_boost,
+        2 => arat,
+        // 3 - reserved
+        4 => pln,
+        5 => ecmd,
+        6 => ptm,
+        7 => hwp,
+        8 => hwp_notification,
+        9 => hwp_activity_window,
+        10 => hwp_energy_performance_preference,
+        // 12 - reserved
+        13 => hdc
+    });
 
     pub fn number_of_interrupt_thresholds(self) -> u32 {
         bits_of(self.ebx, 0, 3)
     }
 
-    bit!(ecx, 0, hardware_coordination_feedback);
-    // 1-2 - reserved
-    bit!(ecx, 3, performance_energy_bias);
+    bit!(ecx, {
+        0 => hardware_coordination_feedback,
+        // 1-2 - reserved
+        3 => performance_energy_bias
+    });
 }
 
 impl fmt::Debug for ThermalPowerManagementInformation {
@@ -502,31 +514,35 @@ impl StructuredExtendedInformation {
         StructuredExtendedInformation { ebx: b, ecx: c }
     }
 
-    bit!(ebx,  0, fsgsbase);
-    bit!(ebx,  1, ia32_tsc_adjust_msr);
-    // 2 - reserved
-    bit!(ebx,  3, bmi1);
-    bit!(ebx,  4, hle);
-    bit!(ebx,  5, avx2);
-    // 6 - reserved
-    bit!(ebx,  7, smep);
-    bit!(ebx,  8, bmi2);
-    bit!(ebx,  9, enhanced_rep_movsb_stosb);
-    bit!(ebx, 10, invpcid);
-    bit!(ebx, 11, rtm);
-    bit!(ebx, 12, pqm);
-    bit!(ebx, 13, deprecates_fpu_cs_ds);
-    // 14 - reserved
-    bit!(ebx, 15, pqe);
-    // 16-17 - reserved
-    bit!(ebx, 18, rdseed);
-    bit!(ebx, 19, adx);
-    bit!(ebx, 20, smap);
-    // 21-24 - reserved
-    bit!(ebx, 25, intel_processor_trace);
-    // 26-31 - reserved
+    bit!(ebx, {
+        0 => fsgsbase,
+        1 => ia32_tsc_adjust_msr,
+        // 2 - reserved
+        3 => bmi1,
+        4 => hle,
+        5 => avx2,
+        // 6 - reserved
+        7 => smep,
+        8 => bmi2,
+        9 => enhanced_rep_movsb_stosb,
+        10 => invpcid,
+        11 => rtm,
+        12 => pqm,
+        13 => deprecates_fpu_cs_ds,
+        // 14 - reserved
+        15 => pqe,
+        // 16-17 - reserved
+        18 => rdseed,
+        19 => adx,
+        20 => smap,
+        // 21-24 - reserved
+        25 => intel_processor_trace
+        // 26-31 - reserved
+    });
 
-    bit!(ecx,  0, prefetchwt1);
+    bit!(ecx, {
+        0 => prefetchwt1
+    });
 }
 
 impl fmt::Debug for StructuredExtendedInformation {
@@ -617,9 +633,11 @@ impl TimeStampCounter {
         TimeStampCounter { edx: d }
     }
 
-    // 0-7 - reserved
-    bit!(edx, 8, invariant_tsc);
-    // 9-31 - reserved
+    bit!(edx, {
+        // 0-7 - reserved
+        8 => invariant_tsc
+        // 9-31 - reserved
+    });
 }
 
 impl fmt::Debug for TimeStampCounter {
