@@ -590,11 +590,11 @@ impl CacheLine {
         CacheLine(c)
     }
 
-    fn cache_line_size(self) -> u32 {
+    pub fn cache_line_size(self) -> u32 {
         bits_of(self.0, 0, 7)
     }
 
-    fn l2_associativity(self) -> Option<CacheLineAssociativity> {
+    pub fn l2_associativity(self) -> Option<CacheLineAssociativity> {
         match bits_of(self.0, 12, 15) {
             0x00 => Some(CacheLineAssociativity::Disabled),
             0x01 => Some(CacheLineAssociativity::DirectMapped),
@@ -607,7 +607,7 @@ impl CacheLine {
         }
     }
 
-    fn cache_size(self) -> u32 {
+    pub fn cache_size(self) -> u32 {
         bits_of(self.0, 16, 31)
     }
 }
