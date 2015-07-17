@@ -6,8 +6,10 @@
 //! fn main() {
 //!     let information = cupid::master();
 //!     println!("{:#?}", information);
-//!     if information.sse4_2() {
-//!          println!("SSE 4.2 Available");
+//!     if let Some(information) = information {
+//!         if information.sse4_2() {
+//!              println!("SSE 4.2 Available");
+//!         }
 //!     }
 //! }
 //! ```
@@ -712,7 +714,7 @@ pub struct Master {
 }
 
 impl Master {
-    pub fn new() -> Master {
+    fn new() -> Master {
         fn when_supported<F, T>(max: u32, kind: RequestType, then: F) -> Option<T>
             where F: FnOnce() -> T
         {
@@ -897,11 +899,19 @@ impl Master {
 }
 
 /// The main entrypoint to the CPU information
-pub fn master() -> Master {
-    Master::new()
+#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+pub fn master() -> Option<Master> {
+    Some(Master::new())
+}
+
+/// The main entrypoint to the CPU information
+#[cfg(not(any(target_arch = "x86_64", target_arch = "x86")))]
+pub fn master() -> Option<Master> {
+    None
 }
 
 #[test]
+#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
 fn basic_genuine_intel() {
     let (_, b, c, d) = cpuid(RequestType::BasicInformation);
 
@@ -912,5 +922,5 @@ fn basic_genuine_intel() {
 
 #[test]
 fn brand_string_contains_intel() {
-    assert!(master().brand_string().unwrap().contains("Intel(R)"))
+    assert!(master().unwrap().brand_string().unwrap().contains("Intel(R)"))
 }
