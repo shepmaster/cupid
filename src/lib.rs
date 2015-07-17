@@ -98,6 +98,14 @@ macro_rules! delegate_flag {
     }
 }
 
+macro_rules! master_attr_reader {
+    ($name:ident, $kind:ty) => {
+        pub fn $name(&self) -> Option<&$kind> {
+            self.$name.as_ref()
+        }
+    }
+}
+
 #[derive(Copy, Clone)]
 pub struct VersionInformation {
     eax: u32,
@@ -333,7 +341,7 @@ impl fmt::Debug for VersionInformation {
 }
 
 #[derive(Copy,Clone)]
-struct ExtendedProcessorSignature {
+pub struct ExtendedProcessorSignature {
     ecx: u32,
     edx: u32,
 }
@@ -758,6 +766,14 @@ impl Master {
             physical_address_size: pas,
         }
     }
+
+    master_attr_reader!(version_information, VersionInformation);
+    master_attr_reader!(thermal_power_management_information, ThermalPowerManagementInformation);
+    master_attr_reader!(structured_extended_information, StructuredExtendedInformation);
+    master_attr_reader!(extended_processor_signature, ExtendedProcessorSignature);
+    master_attr_reader!(cache_line, CacheLine);
+    master_attr_reader!(time_stamp_counter, TimeStampCounter);
+    master_attr_reader!(physical_address_size, PhysicalAddressSize);
 
     pub fn brand_string(&self) -> Option<&str> {
         self.brand_string.as_ref().map(|bs| bs as &str).or({
