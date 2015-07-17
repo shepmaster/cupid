@@ -1,5 +1,17 @@
 #![feature(asm)]
 
+//! ```
+//! extern crate cupid;
+//!
+//! fn main() {
+//!     let information = cupid::master();
+//!     println!("{:#?}", information);
+//!     if information.sse4_2() {
+//!          println!("SSE 4.2 Available");
+//!     }
+//! }
+//! ```
+
 use std::{fmt, slice, str};
 use std::ops::Deref;
 
@@ -86,11 +98,6 @@ macro_rules! delegate_flag {
     }
 }
 
-/// Exposes the processor feature flags.
-///
-/// Each method corresponds to a single capability. Method names match
-/// the feature mnemonic listed in the Intel Instruction Set
-/// Reference.
 #[derive(Copy, Clone)]
 pub struct VersionInformation {
     eax: u32,
@@ -378,7 +385,6 @@ impl fmt::Debug for ExtendedProcessorSignature {
 // 3 calls of 4 registers of 4 bytes
 const BRAND_STRING_LENGTH: usize = 3 * 4 * 4;
 
-/// The brand of the processor.
 pub struct BrandString {
     bytes: [u8; BRAND_STRING_LENGTH],
 }
@@ -675,6 +681,15 @@ impl fmt::Debug for PhysicalAddressSize {
     }
 }
 
+/// Information about the currently running processor
+///
+/// Feature flags match the feature mnemonic listed in the Intel
+/// Instruction Set Reference. This struct provides a facade for flags
+/// so the consumer doesn't need to worry about which particular CPUID
+/// leaf provides the information.
+///
+/// For data beyond simple feature flags, you will need to retrieve
+/// the nested struct and call the appropriate methods on it.
 #[derive(Debug,Clone)]
 pub struct Master {
     // TODO: Rename struct
@@ -865,6 +880,7 @@ impl Master {
     });
 }
 
+/// The main entrypoint to the CPU information
 pub fn master() -> Master {
     Master::new()
 }
