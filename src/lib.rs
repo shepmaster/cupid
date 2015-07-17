@@ -79,10 +79,10 @@ macro_rules! dump {
 }
 
 macro_rules! delegate_flag {
-    ($item:ident, $name:ident) => {
-        pub fn $name(self) -> bool {
+    ($item:ident, {$($name:ident),+}) => {
+        $(pub fn $name(self) -> bool {
             self.$item.map(|i| i.$name()).unwrap_or(false)
-        }
+        })+
     }
 }
 
@@ -732,109 +732,119 @@ impl Master {
         })
     }
 
-    delegate_flag!(version_information, sse3);
-    delegate_flag!(version_information, pclmulqdq);
-    delegate_flag!(version_information, dtes64);
-    delegate_flag!(version_information, monitor);
-    delegate_flag!(version_information, ds_cpl);
-    delegate_flag!(version_information, vmx);
-    delegate_flag!(version_information, smx);
-    delegate_flag!(version_information, eist);
-    delegate_flag!(version_information, tm2);
-    delegate_flag!(version_information, ssse3);
-    delegate_flag!(version_information, cnxt_id);
-    delegate_flag!(version_information, sdbg);
-    delegate_flag!(version_information, fma);
-    delegate_flag!(version_information, cmpxchg16b);
-    delegate_flag!(version_information, xtpr_update_control);
-    delegate_flag!(version_information, pdcm);
-    delegate_flag!(version_information, pcid);
-    delegate_flag!(version_information, dca);
-    delegate_flag!(version_information, sse4_1);
-    delegate_flag!(version_information, sse4_2);
-    delegate_flag!(version_information, x2apic);
-    delegate_flag!(version_information, movbe);
-    delegate_flag!(version_information, popcnt);
-    delegate_flag!(version_information, tsc_deadline);
-    delegate_flag!(version_information, aesni);
-    delegate_flag!(version_information, xsave);
-    delegate_flag!(version_information, osxsave);
-    delegate_flag!(version_information, avx);
-    delegate_flag!(version_information, f16c);
-    delegate_flag!(version_information, rdrand);
-    delegate_flag!(version_information, fpu);
-    delegate_flag!(version_information, vme);
-    delegate_flag!(version_information, de);
-    delegate_flag!(version_information, pse);
-    delegate_flag!(version_information, tsc);
-    delegate_flag!(version_information, msr);
-    delegate_flag!(version_information, pae);
-    delegate_flag!(version_information, mce);
-    delegate_flag!(version_information, cx8);
-    delegate_flag!(version_information, apic);
-    delegate_flag!(version_information, sep);
-    delegate_flag!(version_information, mtrr);
-    delegate_flag!(version_information, pge);
-    delegate_flag!(version_information, mca);
-    delegate_flag!(version_information, cmov);
-    delegate_flag!(version_information, pat);
-    delegate_flag!(version_information, pse_36);
-    delegate_flag!(version_information, psn);
-    delegate_flag!(version_information, clfsh);
-    delegate_flag!(version_information, ds);
-    delegate_flag!(version_information, acpi);
-    delegate_flag!(version_information, mmx);
-    delegate_flag!(version_information, fxsr);
-    delegate_flag!(version_information, sse);
-    delegate_flag!(version_information, sse2);
-    delegate_flag!(version_information, ss);
-    delegate_flag!(version_information, htt);
-    delegate_flag!(version_information, tm);
-    delegate_flag!(version_information, pbe);
+    delegate_flag!(version_information, {
+        sse3,
+        pclmulqdq,
+        dtes64,
+        monitor,
+        ds_cpl,
+        vmx,
+        smx,
+        eist,
+        tm2,
+        ssse3,
+        cnxt_id,
+        sdbg,
+        fma,
+        cmpxchg16b,
+        xtpr_update_control,
+        pdcm,
+        pcid,
+        dca,
+        sse4_1,
+        sse4_2,
+        x2apic,
+        movbe,
+        popcnt,
+        tsc_deadline,
+        aesni,
+        xsave,
+        osxsave,
+        avx,
+        f16c,
+        rdrand,
+        fpu,
+        vme,
+        de,
+        pse,
+        tsc,
+        msr,
+        pae,
+        mce,
+        cx8,
+        apic,
+        sep,
+        mtrr,
+        pge,
+        mca,
+        cmov,
+        pat,
+        pse_36,
+        psn,
+        clfsh,
+        ds,
+        acpi,
+        mmx,
+        fxsr,
+        sse,
+        sse2,
+        ss,
+        htt,
+        tm,
+        pbe
+    });
 
-    delegate_flag!(thermal_power_management_information, digital_temperature_sensor);
-    delegate_flag!(thermal_power_management_information, intel_turbo_boost);
-    delegate_flag!(thermal_power_management_information, arat);
-    delegate_flag!(thermal_power_management_information, pln);
-    delegate_flag!(thermal_power_management_information, ecmd);
-    delegate_flag!(thermal_power_management_information, ptm);
-    delegate_flag!(thermal_power_management_information, hwp);
-    delegate_flag!(thermal_power_management_information, hwp_notification);
-    delegate_flag!(thermal_power_management_information, hwp_activity_window);
-    delegate_flag!(thermal_power_management_information, hwp_energy_performance_preference);
-    delegate_flag!(thermal_power_management_information, hdc);
-    delegate_flag!(thermal_power_management_information, hardware_coordination_feedback);
-    delegate_flag!(thermal_power_management_information, performance_energy_bias);
+    delegate_flag!(thermal_power_management_information, {
+        digital_temperature_sensor,
+        intel_turbo_boost,
+        arat,
+        pln,
+        ecmd,
+        ptm,
+        hwp,
+        hwp_notification,
+        hwp_activity_window,
+        hwp_energy_performance_preference,
+        hdc,
+        hardware_coordination_feedback,
+        performance_energy_bias
+    });
 
-    delegate_flag!(structured_extended_information, fsgsbase);
-    delegate_flag!(structured_extended_information, ia32_tsc_adjust_msr);
-    delegate_flag!(structured_extended_information, bmi1);
-    delegate_flag!(structured_extended_information, hle);
-    delegate_flag!(structured_extended_information, avx2);
-    delegate_flag!(structured_extended_information, smep);
-    delegate_flag!(structured_extended_information, bmi2);
-    delegate_flag!(structured_extended_information, enhanced_rep_movsb_stosb);
-    delegate_flag!(structured_extended_information, invpcid);
-    delegate_flag!(structured_extended_information, rtm);
-    delegate_flag!(structured_extended_information, pqm);
-    delegate_flag!(structured_extended_information, deprecates_fpu_cs_ds);
-    delegate_flag!(structured_extended_information, pqe);
-    delegate_flag!(structured_extended_information, rdseed);
-    delegate_flag!(structured_extended_information, adx);
-    delegate_flag!(structured_extended_information, smap);
-    delegate_flag!(structured_extended_information, intel_processor_trace);
-    delegate_flag!(structured_extended_information, prefetchwt1);
+    delegate_flag!(structured_extended_information, {
+        fsgsbase,
+        ia32_tsc_adjust_msr,
+        bmi1,
+        hle,
+        avx2,
+        smep,
+        bmi2,
+        enhanced_rep_movsb_stosb,
+        invpcid,
+        rtm,
+        pqm,
+        deprecates_fpu_cs_ds,
+        pqe,
+        rdseed,
+        adx,
+        smap,
+        intel_processor_trace,
+        prefetchwt1
+    });
 
-    delegate_flag!(extended_processor_signature, lahf_sahf_in_64_bit);
-    delegate_flag!(extended_processor_signature, lzcnt);
-    delegate_flag!(extended_processor_signature, prefetchw);
-    delegate_flag!(extended_processor_signature, syscall_sysret_in_64_bit);
-    delegate_flag!(extended_processor_signature, execute_disable);
-    delegate_flag!(extended_processor_signature, gigabyte_pages);
-    delegate_flag!(extended_processor_signature, rdtscp_and_ia32_tsc_aux);
-    delegate_flag!(extended_processor_signature, intel_64_bit_architecture);
+    delegate_flag!(extended_processor_signature, {
+        lahf_sahf_in_64_bit,
+        lzcnt,
+        prefetchw,
+        syscall_sysret_in_64_bit,
+        execute_disable,
+        gigabyte_pages,
+        rdtscp_and_ia32_tsc_aux,
+        intel_64_bit_architecture
+    });
 
-    delegate_flag!(time_stamp_counter, invariant_tsc);
+    delegate_flag!(time_stamp_counter, {
+        invariant_tsc
+    });
 }
 
 pub fn master() -> Master {
