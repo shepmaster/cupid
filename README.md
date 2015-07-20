@@ -12,16 +12,20 @@ Native Rust access to the x86 and x86_64 CPUID instruction.
 extern crate cupid;
 
 fn main() {
-    let info = cupid::feature_information();
-    if (info.sse4_2()) { println!("Yay! SSE 4.2 detected!") }
-    println!("{:?}", info);
+    let information = cupid::master();
+    println!("{:#?}", information);
+    if let Some(information) = information {
+        if information.sse4_2() {
+             println!("SSE 4.2 Available");
+        }
+    }
 }
 ```
 
 ## See also
 
 * [libcpuid](http://libcpuid.sourceforge.net/) - A C library providing
-  access the the CPUID instruction.
+  access to the CPUID instruction.
 * [cpuid](https://crates.io/crates/cpuid) - Rust bindings to the
   libcpuid library.
 * [rust-x86](https://github.com/gz/rust-x86) - Another native crate
