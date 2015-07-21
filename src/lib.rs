@@ -22,6 +22,7 @@ extern crate cfg_if;
 use std::{fmt, slice, str};
 use std::ops::Deref;
 
+#[repr(u32)]
 enum RequestType {
     BasicInformation                  = 0x00000000,
     VersionInformation                = 0x00000001,
