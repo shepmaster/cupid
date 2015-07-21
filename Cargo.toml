@@ -12,3 +12,6 @@ repository = "https://github.com/shepmaster/cupid"
 documentation = "https://shepmaster.github.io/cupid/"
 
 license = "MIT"
+
+[dependencies]
+cfg-if = "0.1"
