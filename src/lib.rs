@@ -94,7 +94,7 @@ macro_rules! dump {
 
 macro_rules! delegate_flag {
     ($item:ident, {$($name:ident),+}) => {
-        $(pub fn $name(self) -> bool {
+        $(pub fn $name(&self) -> bool {
             self.$item.map(|i| i.$name()).unwrap_or(false)
         })+
     }
