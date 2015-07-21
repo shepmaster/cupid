@@ -1,4 +1,5 @@
 #![feature(asm)]
+#![cfg_attr(not(any(target_arch = "x86_64", target_arch = "x86")), allow(dead_code))]
 
 //! ```
 //! extern crate cupid;
@@ -13,6 +14,10 @@
 //!     }
 //! }
 //! ```
+
+
+#[macro_use]
+extern crate cfg_if;
 
 use std::{fmt, slice, str};
 use std::ops::Deref;
@@ -33,28 +38,52 @@ enum RequestType {
     PhysicalAddressSize               = 0x80000008,
 }
 
-fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
-    let res1;
-    let res2;
-    let res3;
-    let res4;
+cfg_if! {
+    if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
 
-    unsafe {
-        asm!("cpuid"
-             : // output operands
-             "={eax}"(res1),
-             "={ebx}"(res2),
-             "={ecx}"(res3),
-             "={edx}"(res4)
-             : // input operands
-             "{eax}"(code as u32),
-             "{ecx}"(0 as u32)
-             : // clobbers
-             : // options
-        );
+        fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+            let res1;
+            let res2;
+            let res3;
+            let res4;
+
+            unsafe {
+                asm!("cpuid"
+                     : // output operands
+                     "={eax}"(res1),
+                     "={ebx}"(res2),
+                     "={ecx}"(res3),
+                     "={edx}"(res4)
+                     : // input operands
+                     "{eax}"(code as u32),
+                     "{ecx}"(0 as u32)
+                     : // clobbers
+                     : // options
+                     );
+            }
+
+            (res1, res2, res3, res4)
+        }
+        /// The main entrypoint to the CPU information
+        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+        pub fn master() -> Option<Master> {
+            Some(Master::new())
+        }
+
+    } else {
+
+        fn cpuid(_code: RequestType) -> (u32, u32, u32, u32) {
+            // it's an error if anyone any gets to this point on
+            // a platform other than x86.
+            unreachable!()
+        }
+
+        /// The main entrypoint to the CPU information
+        pub fn master() -> Option<Master> {
+            None
+        }
+
     }
-
-    (res1, res2, res3, res4)
 }
 
 // This matches the Intel Architecture guide, with bits 31 -> 0.
@@ -898,29 +927,22 @@ impl Master {
     });
 }
 
-/// The main entrypoint to the CPU information
-#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-pub fn master() -> Option<Master> {
-    Some(Master::new())
-}
+cfg_if! {
+    if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
 
-/// The main entrypoint to the CPU information
-#[cfg(not(any(target_arch = "x86_64", target_arch = "x86")))]
-pub fn master() -> Option<Master> {
-    None
-}
+        #[test]
+        fn basic_genuine_intel() {
+            let (_, b, c, d) = cpuid(RequestType::BasicInformation);
 
-#[test]
-#[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-fn basic_genuine_intel() {
-    let (_, b, c, d) = cpuid(RequestType::BasicInformation);
+            assert_eq!(b"Genu", as_bytes(&b));
+            assert_eq!(b"ntel", as_bytes(&c));
+            assert_eq!(b"ineI", as_bytes(&d));
+        }
 
-    assert_eq!(b"Genu", as_bytes(&b));
-    assert_eq!(b"ntel", as_bytes(&c));
-    assert_eq!(b"ineI", as_bytes(&d));
-}
+        #[test]
+        fn brand_string_contains_intel() {
+            assert!(master().unwrap().brand_string().unwrap().contains("Intel(R)"))
+        }
 
-#[test]
-fn brand_string_contains_intel() {
-    assert!(master().unwrap().brand_string().unwrap().contains("Intel(R)"))
+    } else {}
 }
