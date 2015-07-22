@@ -22,6 +22,13 @@ fn main() {
 }
 ```
 
+Cupid currently requires a Rust nightly build as it makes use of
+[inline assembly][asm]. Chances are good that if you want to use the
+functionality provided, you are also doing some low-level trickery, so
+hopefully this won't be too inconvenient.
+
+[asm]: http://doc.rust-lang.org/stable/book/inline-assembly.html
+
 ## See also
 
 * [libcpuid](http://libcpuid.sourceforge.net/) - A C library providing
