@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Master` struct in crate `cupid`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Master">
+
+    <title>cupid::Master - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>cupid</a></p><script>window.sidebarCurrent = {name: 'Master', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>cupid</a>::<wbr><a class='struct' href=''>Master</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-477' class='srclink' href='../src/cupid/src/lib.rs.html#734-744' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Master { /* fields omitted */ }</pre><div class='docblock'><p>Information about the currently running processor</p>
+
+<p>Feature flags match the feature mnemonic listed in the Intel
+Instruction Set Reference. This struct provides a facade for flags
+so the consumer doesn&#39;t need to worry about which particular CPUID
+leaf provides the information.</p>
+
+<p>For data beyond simple feature flags, you will need to retrieve
+the nested struct and call the appropriate methods on it.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../cupid/struct.Master.html' title='cupid::Master'>Master</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-166' class='srclink' href='../src/cupid/src/lib.rs.html#746-929' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.version_information' class='method'><span id='version_information.v' class='invisible'><code>fn <a href='#method.version_information' class='fnname'>version_information</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../cupid/struct.VersionInformation.html' title='cupid::VersionInformation'>VersionInformation</a>&gt;</code></span></h4>
+<h4 id='method.thermal_power_management_information' class='method'><span id='thermal_power_management_information.v' class='invisible'><code>fn <a href='#method.thermal_power_management_information' class='fnname'>thermal_power_management_information</a>(&amp;self)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../cupid/struct.ThermalPowerManagementInformation.html' title='cupid::ThermalPowerManagementInformation'>ThermalPowerManagementInformation</a>&gt;</code></span></h4>
+<h4 id='method.structured_extended_information' class='method'><span id='structured_extended_information.v' class='invisible'><code>fn <a href='#method.structured_extended_information' class='fnname'>structured_extended_information</a>(&amp;self)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../cupid/struct.StructuredExtendedInformation.html' title='cupid::StructuredExtendedInformation'>StructuredExtendedInformation</a>&gt;</code></span></h4>
+<h4 id='method.extended_processor_signature' class='method'><span id='extended_processor_signature.v' class='invisible'><code>fn <a href='#method.extended_processor_signature' class='fnname'>extended_processor_signature</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../cupid/struct.ExtendedProcessorSignature.html' title='cupid::ExtendedProcessorSignature'>ExtendedProcessorSignature</a>&gt;</code></span></h4>
+<h4 id='method.cache_line' class='method'><span id='cache_line.v' class='invisible'><code>fn <a href='#method.cache_line' class='fnname'>cache_line</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../cupid/struct.CacheLine.html' title='cupid::CacheLine'>CacheLine</a>&gt;</code></span></h4>
+<h4 id='method.time_stamp_counter' class='method'><span id='time_stamp_counter.v' class='invisible'><code>fn <a href='#method.time_stamp_counter' class='fnname'>time_stamp_counter</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../cupid/struct.TimeStampCounter.html' title='cupid::TimeStampCounter'>TimeStampCounter</a>&gt;</code></span></h4>
+<h4 id='method.physical_address_size' class='method'><span id='physical_address_size.v' class='invisible'><code>fn <a href='#method.physical_address_size' class='fnname'>physical_address_size</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../cupid/struct.PhysicalAddressSize.html' title='cupid::PhysicalAddressSize'>PhysicalAddressSize</a>&gt;</code></span></h4>
+<h4 id='method.brand_string' class='method'><span id='brand_string.v' class='invisible'><code>fn <a href='#method.brand_string' class='fnname'>brand_string</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></span></h4>
+<h4 id='method.sse3' class='method'><span id='sse3.v' class='invisible'><code>fn <a href='#method.sse3' class='fnname'>sse3</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pclmulqdq' class='method'><span id='pclmulqdq.v' class='invisible'><code>fn <a href='#method.pclmulqdq' class='fnname'>pclmulqdq</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.dtes64' class='method'><span id='dtes64.v' class='invisible'><code>fn <a href='#method.dtes64' class='fnname'>dtes64</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.monitor' class='method'><span id='monitor.v' class='invisible'><code>fn <a href='#method.monitor' class='fnname'>monitor</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.ds_cpl' class='method'><span id='ds_cpl.v' class='invisible'><code>fn <a href='#method.ds_cpl' class='fnname'>ds_cpl</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.vmx' class='method'><span id='vmx.v' class='invisible'><code>fn <a href='#method.vmx' class='fnname'>vmx</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.smx' class='method'><span id='smx.v' class='invisible'><code>fn <a href='#method.smx' class='fnname'>smx</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.eist' class='method'><span id='eist.v' class='invisible'><code>fn <a href='#method.eist' class='fnname'>eist</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.tm2' class='method'><span id='tm2.v' class='invisible'><code>fn <a href='#method.tm2' class='fnname'>tm2</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.ssse3' class='method'><span id='ssse3.v' class='invisible'><code>fn <a href='#method.ssse3' class='fnname'>ssse3</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.cnxt_id' class='method'><span id='cnxt_id.v' class='invisible'><code>fn <a href='#method.cnxt_id' class='fnname'>cnxt_id</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.sdbg' class='method'><span id='sdbg.v' class='invisible'><code>fn <a href='#method.sdbg' class='fnname'>sdbg</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.fma' class='method'><span id='fma.v' class='invisible'><code>fn <a href='#method.fma' class='fnname'>fma</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.cmpxchg16b' class='method'><span id='cmpxchg16b.v' class='invisible'><code>fn <a href='#method.cmpxchg16b' class='fnname'>cmpxchg16b</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.xtpr_update_control' class='method'><span id='xtpr_update_control.v' class='invisible'><code>fn <a href='#method.xtpr_update_control' class='fnname'>xtpr_update_control</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pdcm' class='method'><span id='pdcm.v' class='invisible'><code>fn <a href='#method.pdcm' class='fnname'>pdcm</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pcid' class='method'><span id='pcid.v' class='invisible'><code>fn <a href='#method.pcid' class='fnname'>pcid</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.dca' class='method'><span id='dca.v' class='invisible'><code>fn <a href='#method.dca' class='fnname'>dca</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.sse4_1' class='method'><span id='sse4_1.v' class='invisible'><code>fn <a href='#method.sse4_1' class='fnname'>sse4_1</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.sse4_2' class='method'><span id='sse4_2.v' class='invisible'><code>fn <a href='#method.sse4_2' class='fnname'>sse4_2</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.x2apic' class='method'><span id='x2apic.v' class='invisible'><code>fn <a href='#method.x2apic' class='fnname'>x2apic</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.movbe' class='method'><span id='movbe.v' class='invisible'><code>fn <a href='#method.movbe' class='fnname'>movbe</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.popcnt' class='method'><span id='popcnt.v' class='invisible'><code>fn <a href='#method.popcnt' class='fnname'>popcnt</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.tsc_deadline' class='method'><span id='tsc_deadline.v' class='invisible'><code>fn <a href='#method.tsc_deadline' class='fnname'>tsc_deadline</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.aesni' class='method'><span id='aesni.v' class='invisible'><code>fn <a href='#method.aesni' class='fnname'>aesni</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.xsave' class='method'><span id='xsave.v' class='invisible'><code>fn <a href='#method.xsave' class='fnname'>xsave</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.osxsave' class='method'><span id='osxsave.v' class='invisible'><code>fn <a href='#method.osxsave' class='fnname'>osxsave</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.avx' class='method'><span id='avx.v' class='invisible'><code>fn <a href='#method.avx' class='fnname'>avx</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.f16c' class='method'><span id='f16c.v' class='invisible'><code>fn <a href='#method.f16c' class='fnname'>f16c</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.rdrand' class='method'><span id='rdrand.v' class='invisible'><code>fn <a href='#method.rdrand' class='fnname'>rdrand</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.fpu' class='method'><span id='fpu.v' class='invisible'><code>fn <a href='#method.fpu' class='fnname'>fpu</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.vme' class='method'><span id='vme.v' class='invisible'><code>fn <a href='#method.vme' class='fnname'>vme</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.de' class='method'><span id='de.v' class='invisible'><code>fn <a href='#method.de' class='fnname'>de</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pse' class='method'><span id='pse.v' class='invisible'><code>fn <a href='#method.pse' class='fnname'>pse</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.tsc' class='method'><span id='tsc.v' class='invisible'><code>fn <a href='#method.tsc' class='fnname'>tsc</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.msr' class='method'><span id='msr.v' class='invisible'><code>fn <a href='#method.msr' class='fnname'>msr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pae' class='method'><span id='pae.v' class='invisible'><code>fn <a href='#method.pae' class='fnname'>pae</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.mce' class='method'><span id='mce.v' class='invisible'><code>fn <a href='#method.mce' class='fnname'>mce</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.cx8' class='method'><span id='cx8.v' class='invisible'><code>fn <a href='#method.cx8' class='fnname'>cx8</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.apic' class='method'><span id='apic.v' class='invisible'><code>fn <a href='#method.apic' class='fnname'>apic</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.sep' class='method'><span id='sep.v' class='invisible'><code>fn <a href='#method.sep' class='fnname'>sep</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.mtrr' class='method'><span id='mtrr.v' class='invisible'><code>fn <a href='#method.mtrr' class='fnname'>mtrr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pge' class='method'><span id='pge.v' class='invisible'><code>fn <a href='#method.pge' class='fnname'>pge</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.mca' class='method'><span id='mca.v' class='invisible'><code>fn <a href='#method.mca' class='fnname'>mca</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.cmov' class='method'><span id='cmov.v' class='invisible'><code>fn <a href='#method.cmov' class='fnname'>cmov</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pat' class='method'><span id='pat.v' class='invisible'><code>fn <a href='#method.pat' class='fnname'>pat</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pse_36' class='method'><span id='pse_36.v' class='invisible'><code>fn <a href='#method.pse_36' class='fnname'>pse_36</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.psn' class='method'><span id='psn.v' class='invisible'><code>fn <a href='#method.psn' class='fnname'>psn</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.clfsh' class='method'><span id='clfsh.v' class='invisible'><code>fn <a href='#method.clfsh' class='fnname'>clfsh</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.ds' class='method'><span id='ds.v' class='invisible'><code>fn <a href='#method.ds' class='fnname'>ds</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.acpi' class='method'><span id='acpi.v' class='invisible'><code>fn <a href='#method.acpi' class='fnname'>acpi</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.mmx' class='method'><span id='mmx.v' class='invisible'><code>fn <a href='#method.mmx' class='fnname'>mmx</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.fxsr' class='method'><span id='fxsr.v' class='invisible'><code>fn <a href='#method.fxsr' class='fnname'>fxsr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.sse' class='method'><span id='sse.v' class='invisible'><code>fn <a href='#method.sse' class='fnname'>sse</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.sse2' class='method'><span id='sse2.v' class='invisible'><code>fn <a href='#method.sse2' class='fnname'>sse2</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.ss' class='method'><span id='ss.v' class='invisible'><code>fn <a href='#method.ss' class='fnname'>ss</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.htt' class='method'><span id='htt.v' class='invisible'><code>fn <a href='#method.htt' class='fnname'>htt</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.tm' class='method'><span id='tm.v' class='invisible'><code>fn <a href='#method.tm' class='fnname'>tm</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pbe' class='method'><span id='pbe.v' class='invisible'><code>fn <a href='#method.pbe' class='fnname'>pbe</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.digital_temperature_sensor' class='method'><span id='digital_temperature_sensor.v' class='invisible'><code>fn <a href='#method.digital_temperature_sensor' class='fnname'>digital_temperature_sensor</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.intel_turbo_boost' class='method'><span id='intel_turbo_boost.v' class='invisible'><code>fn <a href='#method.intel_turbo_boost' class='fnname'>intel_turbo_boost</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.arat' class='method'><span id='arat.v' class='invisible'><code>fn <a href='#method.arat' class='fnname'>arat</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pln' class='method'><span id='pln.v' class='invisible'><code>fn <a href='#method.pln' class='fnname'>pln</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.ecmd' class='method'><span id='ecmd.v' class='invisible'><code>fn <a href='#method.ecmd' class='fnname'>ecmd</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.ptm' class='method'><span id='ptm.v' class='invisible'><code>fn <a href='#method.ptm' class='fnname'>ptm</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.hwp' class='method'><span id='hwp.v' class='invisible'><code>fn <a href='#method.hwp' class='fnname'>hwp</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.hwp_notification' class='method'><span id='hwp_notification.v' class='invisible'><code>fn <a href='#method.hwp_notification' class='fnname'>hwp_notification</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.hwp_activity_window' class='method'><span id='hwp_activity_window.v' class='invisible'><code>fn <a href='#method.hwp_activity_window' class='fnname'>hwp_activity_window</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.hwp_energy_performance_preference' class='method'><span id='hwp_energy_performance_preference.v' class='invisible'><code>fn <a href='#method.hwp_energy_performance_preference' class='fnname'>hwp_energy_performance_preference</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.hdc' class='method'><span id='hdc.v' class='invisible'><code>fn <a href='#method.hdc' class='fnname'>hdc</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.hardware_coordination_feedback' class='method'><span id='hardware_coordination_feedback.v' class='invisible'><code>fn <a href='#method.hardware_coordination_feedback' class='fnname'>hardware_coordination_feedback</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.performance_energy_bias' class='method'><span id='performance_energy_bias.v' class='invisible'><code>fn <a href='#method.performance_energy_bias' class='fnname'>performance_energy_bias</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.fsgsbase' class='method'><span id='fsgsbase.v' class='invisible'><code>fn <a href='#method.fsgsbase' class='fnname'>fsgsbase</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.ia32_tsc_adjust_msr' class='method'><span id='ia32_tsc_adjust_msr.v' class='invisible'><code>fn <a href='#method.ia32_tsc_adjust_msr' class='fnname'>ia32_tsc_adjust_msr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.bmi1' class='method'><span id='bmi1.v' class='invisible'><code>fn <a href='#method.bmi1' class='fnname'>bmi1</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.hle' class='method'><span id='hle.v' class='invisible'><code>fn <a href='#method.hle' class='fnname'>hle</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.avx2' class='method'><span id='avx2.v' class='invisible'><code>fn <a href='#method.avx2' class='fnname'>avx2</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.smep' class='method'><span id='smep.v' class='invisible'><code>fn <a href='#method.smep' class='fnname'>smep</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.bmi2' class='method'><span id='bmi2.v' class='invisible'><code>fn <a href='#method.bmi2' class='fnname'>bmi2</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.enhanced_rep_movsb_stosb' class='method'><span id='enhanced_rep_movsb_stosb.v' class='invisible'><code>fn <a href='#method.enhanced_rep_movsb_stosb' class='fnname'>enhanced_rep_movsb_stosb</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.invpcid' class='method'><span id='invpcid.v' class='invisible'><code>fn <a href='#method.invpcid' class='fnname'>invpcid</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.rtm' class='method'><span id='rtm.v' class='invisible'><code>fn <a href='#method.rtm' class='fnname'>rtm</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pqm' class='method'><span id='pqm.v' class='invisible'><code>fn <a href='#method.pqm' class='fnname'>pqm</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.deprecates_fpu_cs_ds' class='method'><span id='deprecates_fpu_cs_ds.v' class='invisible'><code>fn <a href='#method.deprecates_fpu_cs_ds' class='fnname'>deprecates_fpu_cs_ds</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.pqe' class='method'><span id='pqe.v' class='invisible'><code>fn <a href='#method.pqe' class='fnname'>pqe</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.rdseed' class='method'><span id='rdseed.v' class='invisible'><code>fn <a href='#method.rdseed' class='fnname'>rdseed</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.adx' class='method'><span id='adx.v' class='invisible'><code>fn <a href='#method.adx' class='fnname'>adx</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.smap' class='method'><span id='smap.v' class='invisible'><code>fn <a href='#method.smap' class='fnname'>smap</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.intel_processor_trace' class='method'><span id='intel_processor_trace.v' class='invisible'><code>fn <a href='#method.intel_processor_trace' class='fnname'>intel_processor_trace</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.prefetchwt1' class='method'><span id='prefetchwt1.v' class='invisible'><code>fn <a href='#method.prefetchwt1' class='fnname'>prefetchwt1</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.lahf_sahf_in_64_bit' class='method'><span id='lahf_sahf_in_64_bit.v' class='invisible'><code>fn <a href='#method.lahf_sahf_in_64_bit' class='fnname'>lahf_sahf_in_64_bit</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.lzcnt' class='method'><span id='lzcnt.v' class='invisible'><code>fn <a href='#method.lzcnt' class='fnname'>lzcnt</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.prefetchw' class='method'><span id='prefetchw.v' class='invisible'><code>fn <a href='#method.prefetchw' class='fnname'>prefetchw</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.syscall_sysret_in_64_bit' class='method'><span id='syscall_sysret_in_64_bit.v' class='invisible'><code>fn <a href='#method.syscall_sysret_in_64_bit' class='fnname'>syscall_sysret_in_64_bit</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.execute_disable' class='method'><span id='execute_disable.v' class='invisible'><code>fn <a href='#method.execute_disable' class='fnname'>execute_disable</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.gigabyte_pages' class='method'><span id='gigabyte_pages.v' class='invisible'><code>fn <a href='#method.gigabyte_pages' class='fnname'>gigabyte_pages</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.rdtscp_and_ia32_tsc_aux' class='method'><span id='rdtscp_and_ia32_tsc_aux.v' class='invisible'><code>fn <a href='#method.rdtscp_and_ia32_tsc_aux' class='fnname'>rdtscp_and_ia32_tsc_aux</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.intel_64_bit_architecture' class='method'><span id='intel_64_bit_architecture.v' class='invisible'><code>fn <a href='#method.intel_64_bit_architecture' class='fnname'>intel_64_bit_architecture</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+<h4 id='method.invariant_tsc' class='method'><span id='invariant_tsc.v' class='invisible'><code>fn <a href='#method.invariant_tsc' class='fnname'>invariant_tsc</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../cupid/struct.Master.html' title='cupid::Master'>Master</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-486' class='srclink' href='../src/cupid/src/lib.rs.html#733' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../cupid/struct.Master.html' title='cupid::Master'>Master</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-499' class='srclink' href='../src/cupid/src/lib.rs.html#733' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../cupid/struct.Master.html' title='cupid::Master'>Master</a></code></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cupid";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
