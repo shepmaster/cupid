@@ -1,7 +1,13 @@
 language: rust
 sudo: false
 rust:
-- nightly
+- stable
+- beta
+
+matrix:
+  include:
+    - rust: nightly
+      script: cargo test && cargo test --features unstable
 env:
   global:
     secure: BrorZ5r3azkbWfieRJGPp0Uo7eoIM8ctn7CNCh1ORZy4elde2FTRPRQ3jboqugxdMCRD8rKZ6TAEChHNFnzZnycIzBIDXt97mSPk8Z7bVWBEKzDG640Ak7fWRA5oXnYVQvYJzatSwBb489XOPLeGPLd6waK0oVpvkzshcid7y1Rqc5exH9jeUU6FEUqKrQs+ugciQsEyeFzYigKVs8ATJZcAy8nDfQocvRB5YwemC7EoqiLxz7iDHjLxNlSxoN1ls30wbXlc5Tv/2dnvMO5QxRju0ep66A07QddXJ8p/AnjgFDRWe3q9ZrjTrGKV8QBzAn8qlk9x6S5Db9uDn5gQxDJza+UaXjTQc5V9xcZ9unEcrgtpuuFDzt+CovMVBsu+UW/8bnl7lwWdiBIKHw8sonRiOFcbvb86bMQy55ymwcJndTogSSnQO2UnobRMRgzqM5fenwYUtl6cC3PXE3jEcLngRdhvgPhewUOIDvsehxBFkDUaxbdSrlEnxgPQvpY14zMkBNSWBIgvIg8beykj0vbfrMxi4BLpAVGffXDO9d1gL1R2ZiB6YsDorYtKqAJeywS+2Q2OQAEHTO8mCKep/avMLeIvy4gNmszhpRPvP2I2GEn6YOT5nol+rBzrMIDVb6Zm/jnoZyR+o3K0rjChG0i18PuDnbsULeAS0DCiQGI=

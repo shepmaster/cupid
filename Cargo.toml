@@ -12,6 +12,13 @@ repository = "https://github.com/shepmaster/cupid"
 documentation = "https://shepmaster.github.io/cupid/"
 
 license = "MIT"
+build = "build.rs"
 
 [dependencies]
 cfg-if = "0.1"
+
+[build-dependencies]
+gcc = "0.3"
+
+[features]
+unstable = []

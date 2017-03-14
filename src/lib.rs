@@ -1,4 +1,4 @@
-#![feature(asm)]
+#![cfg_attr(feature = "unstable", feature(asm))]
 #![cfg_attr(not(any(target_arch = "x86_64", target_arch = "x86")), allow(dead_code))]
 
 //! ```
@@ -41,7 +41,7 @@ enum RequestType {
 
 cfg_if! {
     if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
-
+        #[cfg(feature = "unstable")]
         fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
             let res1;
             let res2;
@@ -65,6 +65,22 @@ cfg_if! {
 
             (res1, res2, res3, res4)
         }
+
+        #[cfg(not(feature = "unstable"))]
+        fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+            extern {
+                fn __cupid_cpuid_0_2(input: u32, output: *mut u32);
+            }
+
+            let mut ret = [0; 4];
+
+            unsafe {
+                __cupid_cpuid_0_2(code as u32, ret.as_mut_ptr());
+            }
+
+            (ret[0], ret[1], ret[2], ret[3])
+        }
+
         /// The main entrypoint to the CPU information
         #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
         pub fn master() -> Option<Master> {
