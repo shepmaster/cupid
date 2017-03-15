@@ -7,9 +7,8 @@ description = "Native access to the x86 and x86_64 CPUID instruction"
 readme = "README.md"
 keywords = ["assembly", "system", "x86", "x86_64", "cpuid"]
 
-homepage = "https://github.com/shepmaster/cupid"
 repository = "https://github.com/shepmaster/cupid"
-documentation = "https://shepmaster.github.io/cupid/"
+documentation = "https://docs.rs/cupid/"
 
 license = "MIT"
 build = "build.rs"
