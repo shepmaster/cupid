@@ -1,6 +1,6 @@
 [package]
 name = "cupid"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Jake Goulding <jake.goulding@gmail.com>"]
 
 description = "Native access to the x86 and x86_64 CPUID instruction"
