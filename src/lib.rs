@@ -69,13 +69,18 @@ cfg_if! {
         #[cfg(not(feature = "unstable"))]
         fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
             extern {
-                fn __cupid_cpuid_0_2(input: u32, output: *mut u32);
+                // This function name encodes an ABI compatibility
+                // version. When we release a new major version of the
+                // crate, this should be bumped to allow co-existing
+                // installations. If we need to change this interface,
+                // we should likely bump this version as well!
+                fn __cupid_cpuid_shim_0_3(code: u32, code2: u32, output: *mut u32);
             }
 
             let mut ret = [0; 4];
 
             unsafe {
-                __cupid_cpuid_0_2(code as u32, ret.as_mut_ptr());
+                __cupid_cpuid_shim_0_3(code as u32, 0, ret.as_mut_ptr());
             }
 
             (ret[0], ret[1], ret[2], ret[3])

@@ -1,5 +1,7 @@
 [package]
 name = "cupid"
+# Are you releasing a semver-incompatible version? Remember to bump
+# the C shim ABI name too!
 version = "0.3.0"
 authors = ["Jake Goulding <jake.goulding@gmail.com>"]
 

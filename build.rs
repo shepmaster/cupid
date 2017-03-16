@@ -7,7 +7,8 @@ fn main() {
         return
     }
 
-    let target = env::var("TARGET").unwrap();
+    let target = env::var("TARGET")
+        .expect("TARGET environment variable must be set");
 
     // not supported on non-x86 platforms
     if !target.starts_with("x86_64") &&
@@ -17,20 +18,11 @@ fn main() {
     }
 
     let mut cfg = gcc::Config::new();
-    let msvc = target.contains("msvc");
-    if target.starts_with("x86_64") {
-        cfg.file(if msvc {"src/arch/x86_64.asm"} else {"src/arch/x86_64.S"});
-        cfg.define("X86_64", None);
-    } else {
-        cfg.file(if msvc {"src/arch/i686.asm"} else {"src/arch/i686.S"});
-        cfg.define("X86", None);
+    if target.contains("msvc") {
+        cfg.define("MSVC", None);
     }
-    if target.contains("darwin") {
-        cfg.define("APPLE", None);
-    }
-    if target.contains("windows") {
-        cfg.define("WINDOWS", None);
-    }
-    cfg.include("src/arch");
+    cfg.file("src/arch/shim.c");
     cfg.compile("libcupid.a");
+
+    println!("cargo:rerun-if-changed=src/arch/shim.c");
 }
