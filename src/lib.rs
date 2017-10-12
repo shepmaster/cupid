@@ -408,10 +408,12 @@ impl ExtendedProcessorSignature {
     bit!(ecx, {
         0 => lahf_sahf_in_64_bit,
         // 1-4 reserved
-        5 => lzcnt,
+        5 => lzcnt,  // implies ABM on AMD
         // 6-7 reserved
-        8 => prefetchw
-        // 9-31 reserved
+        8 => prefetchw,
+        // 9-20 reserved
+        21 => tbm
+        // 22-31 reserved
     });
 
     bit!(edx, {
@@ -430,10 +432,11 @@ impl ExtendedProcessorSignature {
 
 impl fmt::Debug for ExtendedProcessorSignature {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dump!(self, f, "ThermalPowerManagementInformation", {
+        dump!(self, f, "ExtendedProcessorSignature", {
             lahf_sahf_in_64_bit,
             lzcnt,
             prefetchw,
+            tbm,
             syscall_sysret_in_64_bit,
             execute_disable,
             gigabyte_pages,
@@ -937,6 +940,7 @@ impl Master {
         lahf_sahf_in_64_bit,
         lzcnt,
         prefetchw,
+        tbm,
         syscall_sysret_in_64_bit,
         execute_disable,
         gigabyte_pages,
