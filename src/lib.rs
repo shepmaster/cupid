@@ -408,10 +408,12 @@ impl ExtendedProcessorSignature {
     bit!(ecx, {
         0 => lahf_sahf_in_64_bit,
         // 1-4 reserved
-        5 => lzcnt,
+        5 => lzcnt,  // implies Advanced Bit Manipulation (ABM) on AMD
         // 6-7 reserved
-        8 => prefetchw
-        // 9-31 reserved
+        8 => prefetchw,
+        // 9-20 reserved
+        21 => tbm // AMD only
+        // 22-31 reserved
     });
 
     bit!(edx, {
@@ -434,6 +436,7 @@ impl fmt::Debug for ExtendedProcessorSignature {
             lahf_sahf_in_64_bit,
             lzcnt,
             prefetchw,
+            tbm,
             syscall_sysret_in_64_bit,
             execute_disable,
             gigabyte_pages,
@@ -937,6 +940,7 @@ impl Master {
         lahf_sahf_in_64_bit,
         lzcnt,
         prefetchw,
+        tbm,
         syscall_sysret_in_64_bit,
         execute_disable,
         gigabyte_pages,
