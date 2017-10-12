@@ -430,7 +430,7 @@ impl ExtendedProcessorSignature {
 
 impl fmt::Debug for ExtendedProcessorSignature {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dump!(self, f, "ThermalPowerManagementInformation", {
+        dump!(self, f, "ExtendedProcessorSignature", {
             lahf_sahf_in_64_bit,
             lzcnt,
             prefetchw,
