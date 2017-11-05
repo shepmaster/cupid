@@ -40,10 +40,14 @@ enum RequestType {
     PhysicalAddressSize               = 0x80000008,
 }
 
+fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+    cpuid_ext(code, 0x00000000)
+}
+
 cfg_if! {
     if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
         #[cfg(feature = "unstable")]
-        fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+        fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
             let res1;
             let res2;
             let res3;
@@ -68,7 +72,7 @@ cfg_if! {
         }
 
         #[cfg(not(feature = "unstable"))]
-        fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+        fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
             extern {
                 // This function name encodes an ABI compatibility
                 // version. When we release a new major version of the
@@ -81,7 +85,7 @@ cfg_if! {
             let mut ret = [0; 4];
 
             unsafe {
-                __cupid_cpuid_shim_0_3(code as u32, 0, ret.as_mut_ptr());
+                __cupid_cpuid_shim_0_3(code as u32, code2, ret.as_mut_ptr());
             }
 
             (ret[0], ret[1], ret[2], ret[3])
@@ -95,7 +99,7 @@ cfg_if! {
 
     } else {
 
-        fn cpuid(_code: RequestType) -> (u32, u32, u32, u32) {
+        fn cpuid_ext(_code: RequestType, _code2: u32) -> (u32, u32, u32, u32) {
             // it's an error if anyone any gets to this point on
             // a platform other than x86.
             unreachable!()
