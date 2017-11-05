@@ -28,6 +28,7 @@ enum RequestType {
     VersionInformation                = 0x00000001,
     ThermalPowerManagementInformation = 0x00000006,
     StructuredExtendedInformation     = 0x00000007,
+    ProcessorExtendedState            = 0x0000000D,
     ExtendedFunctionInformation       = 0x80000000,
     ExtendedProcessorSignature        = 0x80000001,
     BrandString1                      = 0x80000002,
@@ -641,6 +642,65 @@ impl fmt::Debug for StructuredExtendedInformation {
     }
 }
 
+#[derive(Copy,Clone)]
+pub struct ProcessorExtendedState {
+    eax: u32,
+    ebx: u32,
+    ecx: u32,
+}
+
+impl ProcessorExtendedState {
+    fn new() -> ProcessorExtendedState {
+        let (a, b, c, _) = cpuid(RequestType::ProcessorExtendedState);
+        ProcessorExtendedState { eax: a, ebx: b, ecx: c }
+    }
+
+    bit!(eax, {
+        0 => x87_state,
+        1 => sse_state,
+        2 => avx_state,
+        // 3-4 mpx_state
+        // 5-7 avx_512_state
+        8 => ia32_xss,
+        9 => pkru_state
+        // 10-31 - reserved
+    });
+
+    pub fn mpx_state(self) -> u32 {
+        bits_of(self.eax, 3, 4)
+    }
+
+    pub fn avx_512_state(self) -> u32 {
+        bits_of(self.eax, 5, 7)
+    }
+
+    pub fn maximum_bytes_for_enabled_features(self) -> u32 {
+        self.ebx
+    }
+
+    pub fn maximum_bytes_for_supported_features(self) -> u32 {
+        self.ecx
+    }
+}
+
+impl fmt::Debug for ProcessorExtendedState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "ProcessorExtendedState", {
+            x87_state,
+            sse_state,
+            avx_state,
+            mpx_state,
+            avx_512_state,
+            ia32_xss,
+            pkru_state,
+
+            maximum_bytes_for_enabled_features,
+
+            maximum_bytes_for_supported_features
+        })
+    }
+}
+
 #[derive(Debug, Copy, Clone)]
 pub enum CacheLineAssociativity {
     Disabled,
@@ -761,6 +821,7 @@ pub struct Master {
     version_information: Option<VersionInformation>,
     thermal_power_management_information: Option<ThermalPowerManagementInformation>,
     structured_extended_information: Option<StructuredExtendedInformation>,
+    processor_extended_state: Option<ProcessorExtendedState>,
     extended_processor_signature: Option<ExtendedProcessorSignature>,
     brand_string: Option<BrandString>,
     cache_line: Option<CacheLine>,
@@ -791,6 +852,9 @@ impl Master {
         let sei = when_supported(max_value, RequestType::StructuredExtendedInformation, || {
             StructuredExtendedInformation::new()
         });
+        let pes = when_supported(max_value, RequestType::ProcessorExtendedState, || {
+            ProcessorExtendedState::new()
+        });
 
         // Extended information
 
@@ -816,6 +880,7 @@ impl Master {
             version_information: vi,
             thermal_power_management_information: tpm,
             structured_extended_information: sei,
+            processor_extended_state: pes,
             extended_processor_signature: eps,
             brand_string: brand_string,
             cache_line: cache_line,
@@ -827,6 +892,7 @@ impl Master {
     master_attr_reader!(version_information, VersionInformation);
     master_attr_reader!(thermal_power_management_information, ThermalPowerManagementInformation);
     master_attr_reader!(structured_extended_information, StructuredExtendedInformation);
+    master_attr_reader!(processor_extended_state, ProcessorExtendedState);
     master_attr_reader!(extended_processor_signature, ExtendedProcessorSignature);
     master_attr_reader!(cache_line, CacheLine);
     master_attr_reader!(time_stamp_counter, TimeStampCounter);
@@ -935,6 +1001,14 @@ impl Master {
         smap,
         intel_processor_trace,
         prefetchwt1
+    });
+
+    delegate_flag!(processor_extended_state, {
+        x87_state,
+        sse_state,
+        avx_state,
+        ia32_xss,
+        pkru_state
     });
 
     delegate_flag!(extended_processor_signature, {
