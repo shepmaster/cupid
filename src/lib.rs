@@ -705,6 +705,54 @@ impl fmt::Debug for ProcessorExtendedState {
     }
 }
 
+#[derive(Copy,Clone)]
+pub struct ProcessorExtendedStateSecondary {
+    eax: u32,
+    ebx: u32,
+    ecx: u32,
+}
+
+impl ProcessorExtendedStateSecondary {
+    fn new() -> ProcessorExtendedStateSecondary {
+        let (a, b, c, _) = cpuid_ext(RequestType::ProcessorExtendedState, 0x00000001);
+        ProcessorExtendedStateSecondary { eax: a, ebx: b, ecx: c }
+    }
+
+    bit!(eax, {
+        0 => xsaveopt,
+        1 => xsavec_and_xrstor,
+        2 => xgetbv_with_ecx_1,
+        3 => xsaves_xrstors_and_ia32_xss
+        // 4-31 - reserved
+    });
+
+    bit!(ecx, {
+        // 0-7 - used for XCR0
+        8 => pt_state
+        // 9 - used for XCR0
+        // 10 - 31 - reserved
+    });
+
+    pub fn bytes_of_xsave_area_containing_all_states_enabled(self) -> u32 {
+        self.ebx
+    }
+}
+
+impl fmt::Debug for ProcessorExtendedStateSecondary {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "ProcessorExtendedStateSecondary", {
+            xsaveopt,
+            xsavec_and_xrstor,
+            xgetbv_with_ecx_1,
+            xsaves_xrstors_and_ia32_xss,
+
+            bytes_of_xsave_area_containing_all_states_enabled,
+
+            pt_state
+        })
+    }
+}
+
 #[derive(Debug, Copy, Clone)]
 pub enum CacheLineAssociativity {
     Disabled,
@@ -826,6 +874,7 @@ pub struct Master {
     thermal_power_management_information: Option<ThermalPowerManagementInformation>,
     structured_extended_information: Option<StructuredExtendedInformation>,
     processor_extended_state: Option<ProcessorExtendedState>,
+    processor_extended_state_secondary: Option<ProcessorExtendedStateSecondary>,
     extended_processor_signature: Option<ExtendedProcessorSignature>,
     brand_string: Option<BrandString>,
     cache_line: Option<CacheLine>,
@@ -859,6 +908,9 @@ impl Master {
         let pes = when_supported(max_value, RequestType::ProcessorExtendedState, || {
             ProcessorExtendedState::new()
         });
+        let pes_2 = when_supported(max_value, RequestType::ProcessorExtendedState, || {
+            ProcessorExtendedStateSecondary::new()
+        });
 
         // Extended information
 
@@ -885,6 +937,7 @@ impl Master {
             thermal_power_management_information: tpm,
             structured_extended_information: sei,
             processor_extended_state: pes,
+            processor_extended_state_secondary: pes_2,
             extended_processor_signature: eps,
             brand_string: brand_string,
             cache_line: cache_line,
@@ -897,6 +950,7 @@ impl Master {
     master_attr_reader!(thermal_power_management_information, ThermalPowerManagementInformation);
     master_attr_reader!(structured_extended_information, StructuredExtendedInformation);
     master_attr_reader!(processor_extended_state, ProcessorExtendedState);
+    master_attr_reader!(processor_extended_state_secondary, ProcessorExtendedStateSecondary);
     master_attr_reader!(extended_processor_signature, ExtendedProcessorSignature);
     master_attr_reader!(cache_line, CacheLine);
     master_attr_reader!(time_stamp_counter, TimeStampCounter);
@@ -1013,6 +1067,13 @@ impl Master {
         avx_state,
         ia32_xss,
         pkru_state
+    });
+
+    delegate_flag!(processor_extended_state_secondary, {
+        xsaveopt,
+        xsavec_and_xrstor,
+        xgetbv_with_ecx_1,
+        xsaves_xrstors_and_ia32_xss
     });
 
     delegate_flag!(extended_processor_signature, {
