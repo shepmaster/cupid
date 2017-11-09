@@ -28,6 +28,7 @@ enum RequestType {
     VersionInformation                = 0x00000001,
     ThermalPowerManagementInformation = 0x00000006,
     StructuredExtendedInformation     = 0x00000007,
+    ProcessorExtendedState            = 0x0000000D,
     ExtendedFunctionInformation       = 0x80000000,
     ExtendedProcessorSignature        = 0x80000001,
     BrandString1                      = 0x80000002,
@@ -39,10 +40,14 @@ enum RequestType {
     PhysicalAddressSize               = 0x80000008,
 }
 
+fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+    cpuid_ext(code, 0x00000000)
+}
+
 cfg_if! {
     if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
         #[cfg(feature = "unstable")]
-        fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+        fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
             let res1;
             let res2;
             let res3;
@@ -67,7 +72,7 @@ cfg_if! {
         }
 
         #[cfg(not(feature = "unstable"))]
-        fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
+        fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
             extern {
                 // This function name encodes an ABI compatibility
                 // version. When we release a new major version of the
@@ -80,7 +85,7 @@ cfg_if! {
             let mut ret = [0; 4];
 
             unsafe {
-                __cupid_cpuid_shim_0_3(code as u32, 0, ret.as_mut_ptr());
+                __cupid_cpuid_shim_0_3(code as u32, code2, ret.as_mut_ptr());
             }
 
             (ret[0], ret[1], ret[2], ret[3])
@@ -94,7 +99,7 @@ cfg_if! {
 
     } else {
 
-        fn cpuid(_code: RequestType) -> (u32, u32, u32, u32) {
+        fn cpuid_ext(_code: RequestType, _code2: u32) -> (u32, u32, u32, u32) {
             // it's an error if anyone any gets to this point on
             // a platform other than x86.
             unreachable!()
@@ -641,6 +646,113 @@ impl fmt::Debug for StructuredExtendedInformation {
     }
 }
 
+#[derive(Copy,Clone)]
+pub struct ProcessorExtendedState {
+    eax: u32,
+    ebx: u32,
+    ecx: u32,
+}
+
+impl ProcessorExtendedState {
+    fn new() -> ProcessorExtendedState {
+        let (a, b, c, _) = cpuid(RequestType::ProcessorExtendedState);
+        ProcessorExtendedState { eax: a, ebx: b, ecx: c }
+    }
+
+    bit!(eax, {
+        0 => x87_state,
+        1 => sse_state,
+        2 => avx_state,
+        // 3-4 mpx_state
+        // 5-7 avx_512_state
+        8 => ia32_xss,
+        9 => pkru_state
+        // 10-31 - reserved
+    });
+
+    pub fn mpx_state(self) -> u32 {
+        bits_of(self.eax, 3, 4)
+    }
+
+    pub fn avx_512_state(self) -> u32 {
+        bits_of(self.eax, 5, 7)
+    }
+
+    pub fn maximum_bytes_for_enabled_features(self) -> u32 {
+        self.ebx
+    }
+
+    pub fn maximum_bytes_for_supported_features(self) -> u32 {
+        self.ecx
+    }
+}
+
+impl fmt::Debug for ProcessorExtendedState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "ProcessorExtendedState", {
+            x87_state,
+            sse_state,
+            avx_state,
+            mpx_state,
+            avx_512_state,
+            ia32_xss,
+            pkru_state,
+
+            maximum_bytes_for_enabled_features,
+
+            maximum_bytes_for_supported_features
+        })
+    }
+}
+
+#[derive(Copy,Clone)]
+pub struct ProcessorExtendedStateSecondary {
+    eax: u32,
+    ebx: u32,
+    ecx: u32,
+}
+
+impl ProcessorExtendedStateSecondary {
+    fn new() -> ProcessorExtendedStateSecondary {
+        let (a, b, c, _) = cpuid_ext(RequestType::ProcessorExtendedState, 0x00000001);
+        ProcessorExtendedStateSecondary { eax: a, ebx: b, ecx: c }
+    }
+
+    bit!(eax, {
+        0 => xsaveopt,
+        1 => xsavec_and_xrstor,
+        2 => xgetbv_with_ecx_1,
+        3 => xsaves_xrstors_and_ia32_xss
+        // 4-31 - reserved
+    });
+
+    bit!(ecx, {
+        // 0-7 - used for XCR0
+        8 => pt_state
+        // 9 - used for XCR0
+        // 10 - 31 - reserved
+    });
+
+    pub fn bytes_of_xsave_area_containing_all_states_enabled(self) -> u32 {
+        self.ebx
+    }
+}
+
+impl fmt::Debug for ProcessorExtendedStateSecondary {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "ProcessorExtendedStateSecondary", {
+            xsaveopt,
+            xsavec_and_xrstor,
+            xgetbv_with_ecx_1,
+            xsaves_xrstors_and_ia32_xss,
+
+            bytes_of_xsave_area_containing_all_states_enabled,
+
+            pt_state
+        })
+    }
+}
+
 #[derive(Debug, Copy, Clone)]
 pub enum CacheLineAssociativity {
     Disabled,
@@ -761,6 +873,8 @@ pub struct Master {
     version_information: Option<VersionInformation>,
     thermal_power_management_information: Option<ThermalPowerManagementInformation>,
     structured_extended_information: Option<StructuredExtendedInformation>,
+    processor_extended_state: Option<ProcessorExtendedState>,
+    processor_extended_state_secondary: Option<ProcessorExtendedStateSecondary>,
     extended_processor_signature: Option<ExtendedProcessorSignature>,
     brand_string: Option<BrandString>,
     cache_line: Option<CacheLine>,
@@ -791,6 +905,12 @@ impl Master {
         let sei = when_supported(max_value, RequestType::StructuredExtendedInformation, || {
             StructuredExtendedInformation::new()
         });
+        let pes = when_supported(max_value, RequestType::ProcessorExtendedState, || {
+            ProcessorExtendedState::new()
+        });
+        let pes_2 = when_supported(max_value, RequestType::ProcessorExtendedState, || {
+            ProcessorExtendedStateSecondary::new()
+        });
 
         // Extended information
 
@@ -816,6 +936,8 @@ impl Master {
             version_information: vi,
             thermal_power_management_information: tpm,
             structured_extended_information: sei,
+            processor_extended_state: pes,
+            processor_extended_state_secondary: pes_2,
             extended_processor_signature: eps,
             brand_string: brand_string,
             cache_line: cache_line,
@@ -827,6 +949,8 @@ impl Master {
     master_attr_reader!(version_information, VersionInformation);
     master_attr_reader!(thermal_power_management_information, ThermalPowerManagementInformation);
     master_attr_reader!(structured_extended_information, StructuredExtendedInformation);
+    master_attr_reader!(processor_extended_state, ProcessorExtendedState);
+    master_attr_reader!(processor_extended_state_secondary, ProcessorExtendedStateSecondary);
     master_attr_reader!(extended_processor_signature, ExtendedProcessorSignature);
     master_attr_reader!(cache_line, CacheLine);
     master_attr_reader!(time_stamp_counter, TimeStampCounter);
@@ -935,6 +1059,21 @@ impl Master {
         smap,
         intel_processor_trace,
         prefetchwt1
+    });
+
+    delegate_flag!(processor_extended_state, {
+        x87_state,
+        sse_state,
+        avx_state,
+        ia32_xss,
+        pkru_state
+    });
+
+    delegate_flag!(processor_extended_state_secondary, {
+        xsaveopt,
+        xsavec_and_xrstor,
+        xgetbv_with_ecx_1,
+        xsaves_xrstors_and_ia32_xss
     });
 
     delegate_flag!(extended_processor_signature, {
