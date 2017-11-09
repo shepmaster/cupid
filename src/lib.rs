@@ -582,12 +582,13 @@ impl fmt::Debug for ThermalPowerManagementInformation {
 pub struct StructuredExtendedInformation {
     ebx: u32,
     ecx: u32,
+    edx: u32,
 }
 
 impl StructuredExtendedInformation {
     fn new() -> StructuredExtendedInformation {
-        let (_, b, c, _) = cpuid(RequestType::StructuredExtendedInformation);
-        StructuredExtendedInformation { ebx: b, ecx: c }
+        let (_, b, c, d) = cpuid(RequestType::StructuredExtendedInformation);
+        StructuredExtendedInformation { ebx: b, ecx: c, edx: d }
     }
 
     bit!(ebx, {
@@ -607,17 +608,52 @@ impl StructuredExtendedInformation {
         13 => deprecates_fpu_cs_ds,
         // 14 - reserved
         15 => pqe,
-        // 16-17 - reserved
+        16 => avx512f,
+        17 => avx512dq,
         18 => rdseed,
         19 => adx,
         20 => smap,
-        // 21-24 - reserved
-        25 => intel_processor_trace
-        // 26-31 - reserved
+        21 => avx512_ifma,
+        // 22 - reserved
+        23 => clflushopt,
+        24 => clwb,
+        25 => intel_processor_trace,
+        26 => avx512pf,
+        27 => avx512er,
+        28 => avx512cd,
+        29 => sha,
+        30 => avx512bw,
+        31 => avx512vl
     });
 
     bit!(ecx, {
-        0 => prefetchwt1
+        0 => prefetchwt1,
+        1 => avx512_vbmi,
+        2 => umip,
+        3 => pku,
+        4 => ospke,
+        // 5 - reserved
+        6 => avx512_vbmi2,
+        // 7 - reserved
+        8 => gfni,
+        9 => vaes,
+        10 => vpclmulqdq,
+        11 => avx512_vnni,
+        12 => avx512_bitalg,
+        // 13 - reserved
+        14 => avx512_vpopcntdq,
+        // 15-16 - reserved
+        // 17-22 - TODO
+        // 23-29 - reserved
+        30 => sgx
+        // 31 - reserved
+    });
+
+    bit!(edx, {
+        // 0-1 - reserved
+        2 => avx512_4vnniw,
+        3 => avx512_4fmaps
+        // 4-31 - reserved
     });
 }
 
@@ -637,11 +673,36 @@ impl fmt::Debug for StructuredExtendedInformation {
             pqm,
             deprecates_fpu_cs_ds,
             pqe,
+            avx512f,
+            avx512dq,
             rdseed,
             adx,
             smap,
+            avx512_ifma,
+            clflushopt,
+            clwb,
             intel_processor_trace,
-            prefetchwt1
+            avx512pf,
+            avx512er,
+            avx512cd,
+            sha,
+            avx512bw,
+            avx512vl,
+            prefetchwt1,
+            avx512_vbmi,
+            umip,
+            pku,
+            ospke,
+            avx512_vbmi2,
+            gfni,
+            vaes,
+            vpclmulqdq,
+            avx512_vnni,
+            avx512_bitalg,
+            avx512_vpopcntdq,
+            sgx,
+            avx512_4vnniw,
+            avx512_4fmaps
         })
     }
 }
@@ -1054,11 +1115,36 @@ impl Master {
         pqm,
         deprecates_fpu_cs_ds,
         pqe,
+        avx512f,
+        avx512dq,
         rdseed,
         adx,
         smap,
+        avx512_ifma,
+        clflushopt,
+        clwb,
         intel_processor_trace,
-        prefetchwt1
+        avx512pf,
+        avx512er,
+        avx512cd,
+        sha,
+        avx512bw,
+        avx512vl,
+        prefetchwt1,
+        avx512_vbmi,
+        umip,
+        pku,
+        ospke,
+        avx512_vbmi2,
+        gfni,
+        vaes,
+        vpclmulqdq,
+        avx512_vnni,
+        avx512_bitalg,
+        avx512_vpopcntdq,
+        sgx,
+        avx512_4vnniw,
+        avx512_4fmaps
     });
 
     delegate_flag!(processor_extended_state, {
