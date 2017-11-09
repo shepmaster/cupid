@@ -409,7 +409,8 @@ impl ExtendedProcessorSignature {
         0 => lahf_sahf_in_64_bit,
         // 1-4 reserved
         5 => lzcnt,  // implies Advanced Bit Manipulation (ABM) on AMD
-        // 6-7 reserved
+        6 => sse4a, // AMD only
+        // 7 reserved
         8 => prefetchw,
         // 9-20 reserved
         21 => tbm // AMD only
