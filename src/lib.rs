@@ -62,7 +62,7 @@ cfg_if! {
                      "={edx}"(res4)
                      : // input operands
                      "{eax}"(code as u32),
-                     "{ecx}"(0 as u32)
+                     "{ecx}"(code2 as u32)
                      : // clobbers
                      : // options
                      );

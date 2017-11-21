@@ -7,4 +7,8 @@ rust:
 matrix:
   include:
     - rust: nightly
-      script: cargo test && cargo test --features unstable
+      script: |
+        cargo test && cargo test --features unstable
+        cargo run > stable
+        cargo run --features unstable > unstable
+        diff stable unstable
