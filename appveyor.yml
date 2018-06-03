@@ -2,10 +2,12 @@ image: Visual Studio 2015
 version: "{build}"
 environment:
   matrix:
+    - RUST_CHANNEL: 1.17.0
     - RUST_CHANNEL: stable
+    - RUST_CHANNEL: stable
+      CUPID_PRETEND_CPUID_NOT_AVAILABLE: 1
     - RUST_CHANNEL: beta
     - RUST_CHANNEL: nightly
-      FEATURES: unstable
 cache:
   - 'target'
   - '%USERPROFILE%\.cargo'
@@ -16,7 +18,7 @@ install:
   - cmd: rustc --version
   - cmd: cargo --version
 build_script:
-  - cmd: cargo build --verbose --features "%FEATURES%"
+  - cmd: cargo build --verbose
 test_script:
-  - cmd: cargo test --verbose --features "%FEATURES%"
+  - cmd: cargo test --verbose
 deploy: off
