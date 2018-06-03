@@ -1158,17 +1158,17 @@ mod test {
     use super::*;
 
     #[test]
-    fn basic_genuine_intel() {
-        let (_, b, c, d) = cpuid(RequestType::BasicInformation);
+    fn brand_string_contains_intel_or_amd() {
+        let master = master().unwrap();
+        let brand_string = master.brand_string().unwrap();
 
-        assert_eq!(b"Genu", as_bytes(&b));
-        assert_eq!(b"ntel", as_bytes(&c));
-        assert_eq!(b"ineI", as_bytes(&d));
-    }
+        // "Intel(R) Core(TM) i7-3615QM CPU @ 2.30GHz"
+        let is_intel = brand_string.starts_with("Intel(R)");
+        // Travis sometimes has these.
+        // "AMD EPYC 7401P 24-Core Processor"
+        let is_amd = brand_string.starts_with("AMD");
 
-    #[test]
-    fn brand_string_contains_intel() {
-        assert!(master().unwrap().brand_string().unwrap().contains("Intel(R)"))
+        assert!(is_intel || is_amd, "Brand string was {}", brand_string);
     }
 }
 
