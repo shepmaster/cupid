@@ -1,5 +1,4 @@
-#![cfg_attr(feature = "unstable", feature(asm))]
-#![cfg_attr(not(any(target_arch = "x86_64", target_arch = "x86")), allow(dead_code))]
+#![cfg_attr(not(cpuid_available), allow(dead_code))]
 
 //! ```
 //! extern crate cupid;
@@ -14,10 +13,6 @@
 //!     }
 //! }
 //! ```
-
-
-#[macro_use]
-extern crate cfg_if;
 
 use std::{fmt, slice, str};
 use std::ops::Deref;
@@ -44,72 +39,49 @@ fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
     cpuid_ext(code, 0x00000000)
 }
 
-cfg_if! {
-    if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
-        #[cfg(feature = "unstable")]
-        fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
-            let res1;
-            let res2;
-            let res3;
-            let res4;
+#[cfg(engine_std)]
+fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
+    #[cfg(target_arch = "x86_64")]
+    use std::arch::x86_64::__cpuid_count;
+    #[cfg(target_arch = "x86")]
+    use std::arch::x86::__cpuid_count;
 
-            unsafe {
-                asm!("cpuid"
-                     : // output operands
-                     "={eax}"(res1),
-                     "={ebx}"(res2),
-                     "={ecx}"(res3),
-                     "={edx}"(res4)
-                     : // input operands
-                     "{eax}"(code as u32),
-                     "{ecx}"(code2 as u32)
-                     : // clobbers
-                     : // options
-                     );
-            }
+    let r = unsafe { __cpuid_count(code as u32, code2) };
+    (r.eax, r.ebx, r.ecx, r.edx)
+}
 
-            (res1, res2, res3, res4)
-        }
+#[cfg(engine_c)]
+fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
+    extern {
+        // This function name encodes an ABI compatibility
+        // version. When we release a new major version of the
+        // crate, this should be bumped to allow co-existing
+        // installations. If we need to change this interface,
+        // we should likely bump this version as well!
+        fn __cupid_cpuid_shim_0_3(code: u32, code2: u32, output: *mut u32);
+    }
 
-        #[cfg(not(feature = "unstable"))]
-        fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
-            extern {
-                // This function name encodes an ABI compatibility
-                // version. When we release a new major version of the
-                // crate, this should be bumped to allow co-existing
-                // installations. If we need to change this interface,
-                // we should likely bump this version as well!
-                fn __cupid_cpuid_shim_0_3(code: u32, code2: u32, output: *mut u32);
-            }
+    let mut ret = [0; 4];
 
-            let mut ret = [0; 4];
+    unsafe {
+        __cupid_cpuid_shim_0_3(code as u32, code2, ret.as_mut_ptr());
+    }
 
-            unsafe {
-                __cupid_cpuid_shim_0_3(code as u32, code2, ret.as_mut_ptr());
-            }
+    (ret[0], ret[1], ret[2], ret[3])
+}
 
-            (ret[0], ret[1], ret[2], ret[3])
-        }
+#[cfg(not(cpuid_available))]
+fn cpuid_ext(_code: RequestType, _code2: u32) -> (u32, u32, u32, u32) {
+    unreachable!();
+}
 
-        /// The main entrypoint to the CPU information
-        #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-        pub fn master() -> Option<Master> {
-            Some(Master::new())
-        }
-
-    } else {
-
-        fn cpuid_ext(_code: RequestType, _code2: u32) -> (u32, u32, u32, u32) {
-            // it's an error if anyone any gets to this point on
-            // a platform other than x86.
-            unreachable!()
-        }
-
-        /// The main entrypoint to the CPU information
-        pub fn master() -> Option<Master> {
-            None
-        }
-
+/// The main entrypoint to the CPU information
+pub fn master() -> Option<Master> {
+    #[cfg(cpuid_available)] {
+        Some(Master::new())
+    }
+    #[cfg(not(cpuid_available))] {
+        None
     }
 }
 
@@ -1181,22 +1153,31 @@ impl Master {
     });
 }
 
-cfg_if! {
-    if #[cfg(any(target_arch = "x86_64", target_arch = "x86"))] {
+#[cfg(all(test, cpuid_available))]
+mod test {
+    use super::*;
 
-        #[test]
-        fn basic_genuine_intel() {
-            let (_, b, c, d) = cpuid(RequestType::BasicInformation);
+    #[test]
+    fn brand_string_contains_intel_or_amd() {
+        let master = master().unwrap();
+        let brand_string = master.brand_string().unwrap();
 
-            assert_eq!(b"Genu", as_bytes(&b));
-            assert_eq!(b"ntel", as_bytes(&c));
-            assert_eq!(b"ineI", as_bytes(&d));
-        }
+        // "Intel(R) Core(TM) i7-3615QM CPU @ 2.30GHz"
+        let is_intel = brand_string.starts_with("Intel(R)");
+        // Travis sometimes has these.
+        // "AMD EPYC 7401P 24-Core Processor"
+        let is_amd = brand_string.starts_with("AMD");
 
-        #[test]
-        fn brand_string_contains_intel() {
-            assert!(master().unwrap().brand_string().unwrap().contains("Intel(R)"))
-        }
+        assert!(is_intel || is_amd, "Brand string was {}", brand_string);
+    }
+}
 
-    } else {}
+#[cfg(all(test, not(cpuid_available)))]
+mod test {
+    use super::*;
+
+    #[test]
+    fn is_not_available() {
+        assert!(master().is_none());
+    }
 }

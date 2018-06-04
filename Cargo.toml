@@ -15,11 +15,6 @@ documentation = "https://docs.rs/cupid/"
 license = "MIT"
 build = "build.rs"
 
-[dependencies]
-cfg-if = "0.1"
-
 [build-dependencies]
 gcc = "0.3"
-
-[features]
-unstable = []
+rustc_version = "0.2.2"
