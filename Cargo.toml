@@ -2,7 +2,7 @@
 name = "cupid"
 # Are you releasing a semver-incompatible version? Remember to bump
 # the C shim ABI name too!
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Jake Goulding <jake.goulding@gmail.com>"]
 
 description = "Native access to the x86 and x86_64 CPUID instruction"
