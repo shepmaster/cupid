@@ -181,6 +181,18 @@ impl VersionInformation {
         self.eax
     }
 
+    /// Maximum number of addressable IDs for logical processors in this physical package.
+    ///
+    /// The number of unique initial APIC IDs reserved for addressing different logical processors in a physical package.
+    /// This field is only valid if `VersionInformation::htt()` is true.
+    pub fn max_logical_processor_ids(self) -> Option<u8> {
+        if self.htt() {
+            Some((self.ebx >> 16) as u8)
+        } else {
+            None
+        }
+    }
+
     /// This number is assigned to the local APIC on the processor during power up.
     ///
     /// This field was introduced in the Pentium 4 processor.
@@ -313,6 +325,7 @@ impl fmt::Debug for VersionInformation {
             family_id,
             model_id,
             stepping,
+            max_logical_processor_ids,
             local_logical_processor_id,
             brand_string,
             sse3,
