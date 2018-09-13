@@ -181,6 +181,13 @@ impl VersionInformation {
         self.eax
     }
 
+    /// This number is assigned to the local APIC on the processor during power up.
+    ///
+    /// This field was introduced in the Pentium 4 processor.
+    pub fn local_logical_processor_id(self) -> u8 {
+        (self.ebx >> 24) as u8
+    }
+
     pub fn brand_string(self) -> Option<&'static str> {
         let brand_index = bits_of(self.ebx, 0, 7);
         let processor_signature = self.processor_signature();
@@ -306,6 +313,7 @@ impl fmt::Debug for VersionInformation {
             family_id,
             model_id,
             stepping,
+            local_logical_processor_id,
             brand_string,
             sse3,
             pclmulqdq,
