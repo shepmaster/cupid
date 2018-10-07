@@ -197,6 +197,12 @@ impl VersionInformation {
     /// This number is assigned to the local APIC on the processor during power up.
     ///
     /// This field was introduced in the Pentium 4 processor.
+    ///
+    /// ### Notes
+    ///
+    /// Unless the program is constrained to run on a single
+    /// processor, multiple consecutive calls to this function can
+    /// return different values.
     pub fn local_logical_processor_id(self) -> u8 {
         (self.ebx >> 24) as u8
     }
@@ -763,7 +769,7 @@ impl ExtendedTopologyLeaf {
     ///
     /// All logical processors with the same next level ID share current level.
     ///
-    /// **Notes:**
+    /// ### Notes
     ///
     /// Software should use this field (EAX[4:0]) to enumerate processor topology of the system.
     fn shift_right_for_next_apic_id(&self) -> u32 {
@@ -779,7 +785,7 @@ impl ExtendedTopologyLeaf {
     ///
     /// The number reflects configuration as shipped by Intel.
     ///
-    /// **Notes:**
+    /// ### Notes
     ///
     /// Software must not use EBX[15:0] to enumerate processor topology of the system.
     /// This value in this field (EBX[15:0]) is only intended for display/diagnostic purposes.
@@ -806,6 +812,12 @@ impl ExtendedTopologyLeaf {
     }
 
     /// x2APIC ID the current logical processor.
+    ///
+    /// ### Notes
+    ///
+    /// Unless the program is constrained to run on a single
+    /// processor, multiple consecutive calls to this function can
+    /// return different values.
     pub fn current_logical_processor_id(&self) -> u32 {
         self.edx
     }
