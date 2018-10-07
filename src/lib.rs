@@ -23,6 +23,7 @@ enum RequestType {
     VersionInformation                = 0x00000001,
     ThermalPowerManagementInformation = 0x00000006,
     StructuredExtendedInformation     = 0x00000007,
+    ExtendedTopologyEnumeration       = 0x0000000B,
     ProcessorExtendedState            = 0x0000000D,
     ExtendedFunctionInformation       = 0x80000000,
     ExtendedProcessorSignature        = 0x80000001,
@@ -181,6 +182,25 @@ impl VersionInformation {
         self.eax
     }
 
+    /// Maximum number of addressable IDs for logical processors in this physical package.
+    ///
+    /// The number of unique initial APIC IDs reserved for addressing different logical processors in a physical package.
+    /// This field is only valid if `VersionInformation::htt()` is true.
+    pub fn max_logical_processor_ids(self) -> Option<u8> {
+        if self.htt() {
+            Some((self.ebx >> 16) as u8)
+        } else {
+            None
+        }
+    }
+
+    /// This number is assigned to the local APIC on the processor during power up.
+    ///
+    /// This field was introduced in the Pentium 4 processor.
+    pub fn local_logical_processor_id(self) -> u8 {
+        (self.ebx >> 24) as u8
+    }
+
     pub fn brand_string(self) -> Option<&'static str> {
         let brand_index = bits_of(self.ebx, 0, 7);
         let processor_signature = self.processor_signature();
@@ -306,6 +326,8 @@ impl fmt::Debug for VersionInformation {
             family_id,
             model_id,
             stepping,
+            max_logical_processor_ids,
+            local_logical_processor_id,
             brand_string,
             sse3,
             pclmulqdq,
@@ -680,6 +702,127 @@ impl fmt::Debug for StructuredExtendedInformation {
     }
 }
 
+#[derive(Clone, Default)]
+pub struct ExtendedTopologyEnumeration {
+    level: u32,
+}
+
+impl ExtendedTopologyEnumeration {
+    pub fn new() -> ExtendedTopologyEnumeration {
+        ExtendedTopologyEnumeration::default()
+    }
+}
+
+impl Iterator for ExtendedTopologyEnumeration {
+    type Item = ExtendedTopologyLeaf;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let leaf = ExtendedTopologyLeaf::new(self.level);
+
+        self.level += 1;
+
+        leaf
+    }
+}
+
+impl fmt::Debug for ExtendedTopologyEnumeration {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_list().entries(self.clone()).finish()
+    }
+}
+
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum TopologyType {
+    Invalid = 0,
+    SMT = 1,
+    Core = 2,
+}
+
+#[derive(Copy, Clone)]
+pub struct ExtendedTopologyLeaf {
+    eax: u32,
+    ebx: u32,
+    ecx: u32,
+    edx: u32,
+}
+
+impl ExtendedTopologyLeaf {
+    fn new(level: u32) -> Option<ExtendedTopologyLeaf> {
+        let (eax, ebx, ecx, edx) = cpuid_ext(RequestType::ExtendedTopologyEnumeration, level);
+
+        // Leaf 0BH exists if EBX[15:0] is not zero.
+        if bits_of(ebx, 0, 15) != 0 {
+            Some(ExtendedTopologyLeaf { eax, ebx, ecx, edx })
+        } else {
+            None
+        }
+    }
+
+    /// Number of bits to shift right on x2APIC ID to get a unique topology ID of the next level type.
+    ///
+    /// All logical processors with the same next level ID share current level.
+    ///
+    /// **Notes:**
+    ///
+    /// Software should use this field (EAX[4:0]) to enumerate processor topology of the system.
+    fn shift_right_for_next_apic_id(&self) -> u32 {
+        bits_of(self.eax, 0, 4)
+    }
+
+    /// Get a unique topology ID of the next level type.
+    pub fn next_level_apic_id(&self) -> u32 {
+        self.current_logical_processor_id() >> self.shift_right_for_next_apic_id()
+    }
+
+    /// Number of logical processors at this level type.
+    ///
+    /// The number reflects configuration as shipped by Intel.
+    ///
+    /// **Notes:**
+    ///
+    /// Software must not use EBX[15:0] to enumerate processor topology of the system.
+    /// This value in this field (EBX[15:0]) is only intended for display/diagnostic purposes.
+    /// The actual number of logical processors available to BIOS/OS/Applications
+    /// may be different from the value of EBX[15:0],
+    /// depending on software and platform hardware configurations.
+    pub fn logical_processor_count(&self) -> u32 {
+        bits_of(self.ebx, 0, 15)
+    }
+
+    /// Level number.
+    pub fn level_number(&self) -> u8 {
+        self.ecx as u8
+    }
+
+    /// Level type
+    pub fn level_type(&self) -> TopologyType {
+        match self.ecx >> 8 {
+            0 => TopologyType::Invalid,
+            1 => TopologyType::SMT,
+            2 => TopologyType::Core,
+            _ => unreachable!()
+        }
+    }
+
+    /// x2APIC ID the current logical processor.
+    pub fn current_logical_processor_id(&self) -> u32 {
+        self.edx
+    }
+}
+
+impl fmt::Debug for ExtendedTopologyLeaf {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        dump!(self, f, "ExtendedTopologyLeaf", {
+            level_number,
+            level_type,
+            logical_processor_count,
+            current_logical_processor_id,
+            next_level_apic_id
+        })
+    }
+}
+
 #[derive(Copy,Clone)]
 pub struct ProcessorExtendedState {
     eax: u32,
@@ -907,6 +1050,7 @@ pub struct Master {
     version_information: Option<VersionInformation>,
     thermal_power_management_information: Option<ThermalPowerManagementInformation>,
     structured_extended_information: Option<StructuredExtendedInformation>,
+    extended_topology_enumeration: Option<ExtendedTopologyEnumeration>,
     processor_extended_state: Option<ProcessorExtendedState>,
     processor_extended_state_secondary: Option<ProcessorExtendedStateSecondary>,
     extended_processor_signature: Option<ExtendedProcessorSignature>,
@@ -939,6 +1083,9 @@ impl Master {
         let sei = when_supported(max_value, RequestType::StructuredExtendedInformation, || {
             StructuredExtendedInformation::new()
         });
+        let ete = when_supported(max_value, RequestType::ExtendedTopologyEnumeration, || {
+            ExtendedTopologyEnumeration::new()
+        });
         let pes = when_supported(max_value, RequestType::ProcessorExtendedState, || {
             ProcessorExtendedState::new()
         });
@@ -970,6 +1117,7 @@ impl Master {
             version_information: vi,
             thermal_power_management_information: tpm,
             structured_extended_information: sei,
+            extended_topology_enumeration: ete,
             processor_extended_state: pes,
             processor_extended_state_secondary: pes_2,
             extended_processor_signature: eps,
@@ -983,6 +1131,7 @@ impl Master {
     master_attr_reader!(version_information, VersionInformation);
     master_attr_reader!(thermal_power_management_information, ThermalPowerManagementInformation);
     master_attr_reader!(structured_extended_information, StructuredExtendedInformation);
+    master_attr_reader!(extended_topology_enumeration, ExtendedTopologyEnumeration);
     master_attr_reader!(processor_extended_state, ProcessorExtendedState);
     master_attr_reader!(processor_extended_state_secondary, ProcessorExtendedStateSecondary);
     master_attr_reader!(extended_processor_signature, ExtendedProcessorSignature);
