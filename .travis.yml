@@ -8,11 +8,14 @@ rust:
 
 matrix:
   include:
-    - rust: beta
-      script: |
-        CUPID_FORCE_ENGINE=c cargo run > engine-c
-        CUPID_FORCE_ENGINE=std cargo run > engine-std
-        diff --unified engine-c engine-std
+    - rust: stable
+      # We remove all the `*processor_id*` lines because we can't
+      # control processor affinity in Travis without switching to
+      # `sudo: true`, which isn't worth it at the moment
+      script:
+        - CUPID_FORCE_ENGINE=c   cargo run | grep -v processor_id > engine-c
+        - CUPID_FORCE_ENGINE=std cargo run | grep -v processor_id > engine-std
+        - diff --unified engine-c engine-std
     - rust: stable
       env:
         - CUPID_PRETEND_CPUID_NOT_AVAILABLE=1
