@@ -4,7 +4,7 @@ Native Rust access to the x86 and x86_64 CPUID instruction.
 
 [![Linux Build Status](https://travis-ci.org/shepmaster/cupid.svg)](https://travis-ci.org/shepmaster/cupid)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/shepmaster/cupid?svg=true&branch=master)](https://ci.appveyor.com/project/shepmaster/cupid)
-[![Current Version](http://meritbadge.herokuapp.com/cupid)](https://crates.io/crates/cupid)
+[![Current Version](https://img.shields.io/crates/v/cupid.svg)](https://crates.io/crates/cupid)
 
 [Documentation](https://docs.rs/cupid/)
 
