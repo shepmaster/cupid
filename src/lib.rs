@@ -1,3 +1,4 @@
+#![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
 #![cfg_attr(not(cpuid_available), allow(dead_code))]
 
 //! ```
@@ -14,8 +15,11 @@
 //! }
 //! ```
 
-use std::{fmt, slice, str};
-use std::ops::Deref;
+#[cfg(not(feature = "std"))]
+use core::{fmt, slice, str, ops::Deref};
+
+#[cfg(feature = "std")]
+use std::{fmt, slice, str, ops::Deref};
 
 #[repr(u32)]
 enum RequestType {
@@ -42,10 +46,14 @@ fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
 
 #[cfg(engine_std)]
 fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_arch = "x86_64", feature = "std"))]
     use std::arch::x86_64::__cpuid_count;
-    #[cfg(target_arch = "x86")]
+    #[cfg(all(target_arch = "x86", feature = "std"))]
     use std::arch::x86::__cpuid_count;
+    #[cfg(all(target_arch = "x86_64", not(feature = "std")))]
+    use core::arch::x86_64::__cpuid_count;
+    #[cfg(all(target_arch = "x86", not(feature = "std")))]
+    use core::arch::x86::__cpuid_count;
 
     let r = unsafe { __cpuid_count(code as u32, code2) };
     (r.eax, r.ebx, r.ecx, r.edx)
