@@ -15,10 +15,10 @@
 //! }
 //! ```
 
-#[cfg(not(feature = "std"))]
+#[cfg(all(not(feature = "std"), not(test)))]
 use core::{fmt, slice, str, ops::Deref};
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", test))]
 use std::{fmt, slice, str, ops::Deref};
 
 #[repr(u32)]
@@ -46,13 +46,13 @@ fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
 
 #[cfg(engine_std)]
 fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
-    #[cfg(all(target_arch = "x86_64", feature = "std"))]
+    #[cfg(all(target_arch = "x86_64", any(feature = "std", test)))]
     use std::arch::x86_64::__cpuid_count;
-    #[cfg(all(target_arch = "x86", feature = "std"))]
+    #[cfg(all(target_arch = "x86", any(feature = "std", test)))]
     use std::arch::x86::__cpuid_count;
-    #[cfg(all(target_arch = "x86_64", not(feature = "std")))]
+    #[cfg(all(target_arch = "x86_64", all(not(feature = "std"), not(test))))]
     use core::arch::x86_64::__cpuid_count;
-    #[cfg(all(target_arch = "x86", not(feature = "std")))]
+    #[cfg(all(target_arch = "x86", all(not(feature = "std"), not(test))))]
     use core::arch::x86::__cpuid_count;
 
     let r = unsafe { __cpuid_count(code as u32, code2) };
