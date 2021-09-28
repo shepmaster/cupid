@@ -82,6 +82,9 @@ jobs:
 
       - name: Compare C and standard library engines
         run: |
-          CUPID_FORCE_ENGINE=c   cargo run | grep -v processor_id > engine-c
-          CUPID_FORCE_ENGINE=std cargo run | grep -v processor_id > engine-std
+          clean_processor_specific() {
+            grep -v -E 'logical_processor_id|next_level_apic_id'
+          }
+          CUPID_FORCE_ENGINE=c   cargo run | clean_processor_specific > engine-c
+          CUPID_FORCE_ENGINE=std cargo run | clean_processor_specific > engine-std
           diff --unified engine-c engine-std
