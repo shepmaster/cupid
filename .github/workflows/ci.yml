@@ -1,0 +1,87 @@
+name: Continuous Integration
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
+
+jobs:
+  primary:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        toolchain: [stable, beta, nightly]
+        downgrade: ['']
+        pretend_cpuid_not_available: ['']
+
+        include:
+          - os: windows-latest
+            toolchain: stable
+
+          - os: macos-latest
+            toolchain: stable
+
+          - os: ubuntu-latest
+            toolchain: stable
+            pretend_cpuid_not_available: true
+
+          - os: windows-latest
+            toolchain: stable
+            pretend_cpuid_not_available: true
+
+          - os: ubuntu-latest
+            toolchain: 1.17.0
+            downgrade: true
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          profile: minimal
+          default: true
+
+      - name: Downgrade dependencies
+        if: ${{ matrix.downgrade }}
+        run: |
+          cargo update
+          cargo update -p cc --precise 1.0.41
+
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all
+        env:
+          CUPID_PRETEND_CPUID_NOT_AVAILABLE: ${{ matrix.pretend_cpuid_not_available }}
+
+  compare_engines:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          default: true
+
+      - name: Compare C and standard library engines
+        run: |
+          CUPID_FORCE_ENGINE=c   cargo run | grep -v processor_id > engine-c
+          CUPID_FORCE_ENGINE=std cargo run | grep -v processor_id > engine-std
+          diff --unified engine-c engine-std
