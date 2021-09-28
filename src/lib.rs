@@ -777,6 +777,12 @@ impl ExtendedTopologyLeaf {
     }
 
     /// Get a unique topology ID of the next level type.
+    ///
+    /// ### Notes
+    ///
+    /// Unless the program is constrained to run on a single
+    /// processor, multiple consecutive calls to this function can
+    /// return different values.
     pub fn next_level_apic_id(&self) -> u32 {
         self.current_logical_processor_id() >> self.shift_right_for_next_apic_id()
     }
