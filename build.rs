@@ -1,4 +1,4 @@
-extern crate gcc;
+extern crate cc;
 extern crate rustc_version;
 
 use rustc_version::{version, Version};
@@ -68,7 +68,7 @@ impl Engine {
 }
 
 fn build_c_shim(target: &str) {
-    let mut cfg = gcc::Build::new();
+    let mut cfg = cc::Build::new();
     if target.contains("msvc") {
         cfg.define("MSVC", None);
     }
