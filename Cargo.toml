@@ -20,5 +20,5 @@ default = ["std"]
 std = []
 
 [build-dependencies]
-gcc = "0.3"
+cc = "1.0"
 rustc_version = "0.2.2"

@@ -1,4 +1,4 @@
-#![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
+#![no_std]
 #![cfg_attr(not(cpuid_available), allow(dead_code))]
 
 //! ```
@@ -15,11 +15,8 @@
 //! }
 //! ```
 
-#[cfg(all(not(feature = "std"), not(test)))]
-use core::{fmt, slice, str, ops::Deref};
-
-#[cfg(any(feature = "std", test))]
-use std::{fmt, slice, str, ops::Deref};
+use core::{fmt, slice, str};
+use core::ops::Deref;
 
 #[repr(u32)]
 enum RequestType {
@@ -46,13 +43,9 @@ fn cpuid(code: RequestType) -> (u32, u32, u32, u32) {
 
 #[cfg(engine_std)]
 fn cpuid_ext(code: RequestType, code2: u32) -> (u32, u32, u32, u32) {
-    #[cfg(all(target_arch = "x86_64", any(feature = "std", test)))]
-    use std::arch::x86_64::__cpuid_count;
-    #[cfg(all(target_arch = "x86", any(feature = "std", test)))]
-    use std::arch::x86::__cpuid_count;
-    #[cfg(all(target_arch = "x86_64", all(not(feature = "std"), not(test))))]
+    #[cfg(target_arch = "x86_64")]
     use core::arch::x86_64::__cpuid_count;
-    #[cfg(all(target_arch = "x86", all(not(feature = "std"), not(test))))]
+    #[cfg(target_arch = "x86")]
     use core::arch::x86::__cpuid_count;
 
     let r = unsafe { __cpuid_count(code as u32, code2) };
@@ -507,8 +500,18 @@ impl Deref for BrandString {
 
     fn deref(&self) -> &str {
         let nul_terminator = self.bytes.iter().position(|&b| b == 0).unwrap_or(0);
-        let usable_bytes = &self.bytes[..nul_terminator];
-        unsafe { str::from_utf8_unchecked(usable_bytes) }.trim()
+        let mut usable_bytes = &self.bytes[..nul_terminator];
+
+        // We don't have access to `str::trim` in no_std, so write an ASCII-only one
+        while let Some((&b, next)) = usable_bytes.split_last() {
+            if b == b' ' || b == b'\t' || b == b'\r' || b == b'\n' {
+                usable_bytes = next;
+            } else {
+                break;
+            }
+        }
+
+        unsafe { str::from_utf8_unchecked(usable_bytes) }
     }
 }
 
@@ -785,6 +788,12 @@ impl ExtendedTopologyLeaf {
     }
 
     /// Get a unique topology ID of the next level type.
+    ///
+    /// ### Notes
+    ///
+    /// Unless the program is constrained to run on a single
+    /// processor, multiple consecutive calls to this function can
+    /// return different values.
     pub fn next_level_apic_id(&self) -> u32 {
         self.current_logical_processor_id() >> self.shift_right_for_next_apic_id()
     }
